@@ -1,0 +1,143 @@
+{
+  "version": "39.0.0",
+  "artifacts": {
+    "TempCdkStackStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "TempCdkStackStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "TempCdkStackStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "TempCdkStackStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/93d10c1cac2b9c77968dc03ba1fabb73bd2a69f4138f9c2c8fd6ad6cfd172bea.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "TempCdkStackStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "TempCdkStackStack.assets"
+      ],
+      "metadata": {
+        "/TempCdkStackStack/timeOfday/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayServiceRole8AE5319D"
+          }
+        ],
+        "/TempCdkStackStack/timeOfday/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayServiceRoleDefaultPolicyDF73BE74"
+          }
+        ],
+        "/TempCdkStackStack/timeOfday/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfday233BB059"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPI4BDB07A7"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/CloudWatchRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPICloudWatchRole80FBEA6F"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Account": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIAccount189787F4"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIDeploymentFD9F26F6b67ea817e77b79b397e36b45ce626f92"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/DeploymentStage.prod/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIDeploymentStageprod08DC3174"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIEndpoint8CD41E4F"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Default/POST/ApiPermission.TempCdkStackStacktimeOfdayRestAPIFBAC2AAD.POST..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIPOSTApiPermissionTempCdkStackStacktimeOfdayRestAPIFBAC2AADPOSTB4E84EF3"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Default/POST/ApiPermission.Test.TempCdkStackStacktimeOfdayRestAPIFBAC2AAD.POST..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIPOSTApiPermissionTestTempCdkStackStacktimeOfdayRestAPIFBAC2AADPOSTA14063B2"
+          }
+        ],
+        "/TempCdkStackStack/timeOfdayRestAPI/Default/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "timeOfdayRestAPIPOSTA4F1EC09"
+          }
+        ],
+        "/TempCdkStackStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/TempCdkStackStack/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/TempCdkStackStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/TempCdkStackStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "TempCdkStackStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

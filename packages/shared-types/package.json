@@ -1,4 +1,4 @@
 {
   "name": "@sff/shared-types",
-  "types": "index.js"
+  "types": "./src/index.d.ts"
 }

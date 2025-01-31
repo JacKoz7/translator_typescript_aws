@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import * as path from "path";
 import { Construct } from "constructs";
 // import * as s3 from "aws-cdk-lib/aws-s3";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -38,6 +39,9 @@ export class TempCdkStackStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const projectRoot = "../"; //one folder up
+    const lambdasDirPath = path.join(projectRoot, "packages/lambdas");
+
     // a policy attached to lambda
     // allowing it to access translation resource
     const translateAccessPolicy = new iam.PolicyStatement({
@@ -45,9 +49,13 @@ export class TempCdkStackStack extends cdk.Stack {
       resources: ["*"],
     });
 
+    const translateLambdaPath = path.resolve(
+      path.join(lambdasDirPath, "translate/index.ts")
+    );
+
     // the time of day lambda construct
     const lambdaFunc = new lambdaNodeJs.NodejsFunction(this, "timeOfday", {
-      entry: "./lambda/timeOfday.ts",
+      entry: translateLambdaPath,
       handler: "index",
       runtime: lambda.Runtime.NODEJS_22_X,
       initialPolicy: [translateAccessPolicy],

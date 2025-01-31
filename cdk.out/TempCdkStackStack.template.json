@@ -1,0 +1,656 @@
+{
+ "Resources": {
+  "timeOfdayServiceRole8AE5319D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfday/ServiceRole/Resource"
+   }
+  },
+  "timeOfdayServiceRoleDefaultPolicyDF73BE74": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "translate:TranslateText",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "timeOfdayServiceRoleDefaultPolicyDF73BE74",
+    "Roles": [
+     {
+      "Ref": "timeOfdayServiceRole8AE5319D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfday/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "timeOfday233BB059": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "0a3e1c83ab65b26a7a64fe46c3e42a3024a343bc1851dd4d71b8a4daa9dad9c3.zip"
+    },
+    "Handler": "index.index",
+    "Role": {
+     "Fn::GetAtt": [
+      "timeOfdayServiceRole8AE5319D",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x"
+   },
+   "DependsOn": [
+    "timeOfdayServiceRoleDefaultPolicyDF73BE74",
+    "timeOfdayServiceRole8AE5319D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfday/Resource",
+    "aws:asset:path": "asset.0a3e1c83ab65b26a7a64fe46c3e42a3024a343bc1851dd4d71b8a4daa9dad9c3",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "timeOfdayRestAPI4BDB07A7": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "timeOfdayRestAPI"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Resource"
+   }
+  },
+  "timeOfdayRestAPICloudWatchRole80FBEA6F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/CloudWatchRole/Resource"
+   }
+  },
+  "timeOfdayRestAPIAccount189787F4": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "timeOfdayRestAPICloudWatchRole80FBEA6F",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "timeOfdayRestAPI4BDB07A7"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Account"
+   }
+  },
+  "timeOfdayRestAPIDeploymentFD9F26F6b67ea817e77b79b397e36b45ce626f92": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "timeOfdayRestAPI4BDB07A7"
+    }
+   },
+   "DependsOn": [
+    "timeOfdayRestAPIPOSTA4F1EC09"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Deployment/Resource"
+   }
+  },
+  "timeOfdayRestAPIDeploymentStageprod08DC3174": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "timeOfdayRestAPIDeploymentFD9F26F6b67ea817e77b79b397e36b45ce626f92"
+    },
+    "RestApiId": {
+     "Ref": "timeOfdayRestAPI4BDB07A7"
+    },
+    "StageName": "prod"
+   },
+   "DependsOn": [
+    "timeOfdayRestAPIAccount189787F4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/DeploymentStage.prod/Resource"
+   }
+  },
+  "timeOfdayRestAPIPOSTApiPermissionTempCdkStackStacktimeOfdayRestAPIFBAC2AADPOSTB4E84EF3": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "timeOfday233BB059",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "timeOfdayRestAPI4BDB07A7"
+       },
+       "/",
+       {
+        "Ref": "timeOfdayRestAPIDeploymentStageprod08DC3174"
+       },
+       "/POST/"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Default/POST/ApiPermission.TempCdkStackStacktimeOfdayRestAPIFBAC2AAD.POST.."
+   }
+  },
+  "timeOfdayRestAPIPOSTApiPermissionTestTempCdkStackStacktimeOfdayRestAPIFBAC2AADPOSTA14063B2": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "timeOfday233BB059",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "timeOfdayRestAPI4BDB07A7"
+       },
+       "/test-invoke-stage/POST/"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Default/POST/ApiPermission.Test.TempCdkStackStacktimeOfdayRestAPIFBAC2AAD.POST.."
+   }
+  },
+  "timeOfdayRestAPIPOSTA4F1EC09": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:",
+        {
+         "Ref": "AWS::Region"
+        },
+        ":lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "timeOfday233BB059",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "timeOfdayRestAPI4BDB07A7",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "timeOfdayRestAPI4BDB07A7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/timeOfdayRestAPI/Default/POST/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/01Qy26EMAz8lr0Ht7CVemapeutD7AegbDDUPBKEnSKE+Pcqodr2NOPXzMgZpM9PkJ70womp+2SgG2xX0aZXeuFqG/R4q3VlXY0dw3uEV2+NkLOK9Ahb6QZURWMjfrqBzBrKg+2Kz5VmRmHIAyg+w8WbHuWiGdUhD1vR2LtqOMZ5JGZydld6olYLLnqFrUSWfKJo90dzY5y3ol5wGtw6opXQ/VddRbcx40FKZOdngzHBG8qXq8PwYPt+n6uYONyQbcPGh5fJy6/7sVI0tnC2JolZw5ug44fvLIM0g8dTx0TJ7K3QiFAe+AOHAaTocwEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "TempCdkStackStack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "timeOfdayRestAPIEndpoint8CD41E4F": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "timeOfdayRestAPI4BDB07A7"
+      },
+      ".execute-api.",
+      {
+       "Ref": "AWS::Region"
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "timeOfdayRestAPIDeploymentStageprod08DC3174"
+      },
+      "/"
+     ]
+    ]
+   }
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

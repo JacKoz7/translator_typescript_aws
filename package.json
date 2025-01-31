@@ -4,6 +4,13 @@
   "workspaces": [
     "apps/*",
     "infrastructure",
-    "packages/*"
-  ]
+    "packages/**"
+  ],
+  "scripts": {
+    "frontend-dev": "npm run dev --workspace=@sff/frontend",
+    "deploy": "cd infrastructure && cdk deploy -f --require-approval never"
+  },
+  "dependencies": {
+    "next": "^15.1.6"
+  }
 }
