@@ -7,7 +7,7 @@ Accept: "application/json"
 {
     "sourceLang": "en",
     "targetLang": "pl", 
-    "sourceText": "green pants"
+    "sourceText": "blue pants"
 }
 
 ###
