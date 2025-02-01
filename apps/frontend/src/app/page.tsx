@@ -1,8 +1,12 @@
 "use client";
 import { useState } from "react";
-import { ITranslateRequest, ITranslateResponse } from "@sff/shared-types";
+import {
+  ITranslateDbObject,
+  ITranslateRequest,
+  ITranslateResponse,
+} from "@sff/shared-types";
 
-const URL = "https://xe6yt2kyj9.execute-api.eu-central-1.amazonaws.com/prod/";
+const URL = "https://aaxyc731g5.execute-api.eu-central-1.amazonaws.com/prod";
 
 export const translateText = async ({
   inputLang,
@@ -32,11 +36,28 @@ export const translateText = async ({
   }
 };
 
+export const getTranslations = async () => {
+  try {
+    const result = await fetch(URL, {
+      method: "GET",
+    });
+    const rtnValue = (await result.json()) as Array<ITranslateDbObject>;
+    console.log(rtnValue);
+    return rtnValue;
+  } catch (e: any) {
+    console.error(e);
+    throw e;
+  }
+};
+
 export default function Home() {
   const [inputText, setInputText] = useState<string>("");
   const [inputLang, setInputLang] = useState<string>("");
   const [outputLang, setOutputLang] = useState<string>("");
   const [outputText, setOutputText] = useState<ITranslateResponse | null>(null);
+  const [translations, setTranslations] = useState<Array<ITranslateDbObject>>(
+    []
+  );
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -83,9 +104,40 @@ export default function Home() {
           Translate
         </button>
       </form>
-      <pre style={{ whiteSpace: "pre-wrap" }} className="w-full">
-        {JSON.stringify(outputText, null, 2)}
-      </pre>
+      <div>
+        <p>result:</p>
+        <pre style={{ whiteSpace: "pre-wrap" }} className="w-full">
+          {JSON.stringify(outputText, null, 2)}
+        </pre>
+      </div>
+
+      <button
+        className="btn bg-blue-500 p-2 mt-2 rounded-xl"
+        type="button"
+        onClick={async () => {
+          const rtnValue = await getTranslations();
+          setTranslations(rtnValue);
+        }}
+      >
+        get translations
+      </button>
+
+      <div>
+        <p>result:</p>
+        {translations.map((item) => {
+          return (
+            <div key={item.sourceText}>
+              <p>
+                {item.sourceLang}/{item.sourceText}
+              </p>
+              <p>
+                {item.targetLang}/{item.targetText}
+              </p>
+              <br></br>
+            </div>
+          );
+        })}
+      </div>
     </main>
   );
 }

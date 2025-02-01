@@ -5,6 +5,12 @@ export type ITranslateRequest = {
 };
 
 export type ITranslateResponse = {
-    timestamp: string;
-    targetText: string;
+  timestamp: string;
+  targetText: string;
 };
+
+//combination of these both above and some new fields
+export type ITranslateDbObject = ITranslateRequest &
+  ITranslateResponse & {
+    requestId: string;
+  };

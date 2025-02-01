@@ -1,4 +1,4 @@
-@URL = https://xe6yt2kyj9.execute-api.eu-central-1.amazonaws.com/prod/
+@URL = https://aaxyc731g5.execute-api.eu-central-1.amazonaws.com/prod
 
 POST {{URL}} HTTP/1.1
 Content-Type: application/json
@@ -7,5 +7,11 @@ Accept: "application/json"
 {
     "sourceLang": "en",
     "targetLang": "pl", 
-    "sourceText": "white pants"
+    "sourceText": "green pants"
 }
+
+###
+
+GET {{URL}} HTTP/1.1
+Content-Type: application/json
+Accept: "application/json"
