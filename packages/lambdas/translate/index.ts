@@ -2,6 +2,7 @@ import * as clientTranslate from "@aws-sdk/client-translate"; // sdk - list of l
 import * as dynamodb from "@aws-sdk/client-dynamodb";
 import * as lambda from "aws-lambda";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { gateway } from "/opt/nodejs/utils-lambda-layer";
 import {
   ITranslateDbObject,
   ITranslateRequest,
@@ -85,30 +86,11 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
     };
 
     await dynamodbClient.send(new dynamodb.PutItemCommand(tableInsertCmd));
-
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // required for CORS support to work
-        "Access-Control-Allow-Credentials": true, //required for cookies
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "*",
-      },
-      body: JSON.stringify(rtnData), // stringify - JSON convert to String
-    };
+    return gateway.createSuccessJsonResponse(rtnData);
   } catch (e: any) {
     // errors are always any type
     console.error(e);
-    return {
-      statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // required for CORS support to work
-        "Access-Control-Allow-Credentials": true, //required for cookies
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "*",
-      },
-      body: JSON.stringify(e.toString()),
-    };
+    return gateway.createErrorJsonResponse(e);
   }
 };
 
@@ -120,7 +102,7 @@ export const getTranslations: lambda.APIGatewayProxyHandler = async function (
     const ScanCmd: dynamodb.ScanCommandInput = {
       TableName: TRANSLATION_TABLE_NAME,
     };
-    console.log("ScanCmd", ScanCmd)
+    console.log("ScanCmd", ScanCmd);
 
     const { Items } = await dynamodbClient.send(
       new dynamodb.ScanCommand(ScanCmd)
@@ -130,33 +112,14 @@ export const getTranslations: lambda.APIGatewayProxyHandler = async function (
       throw new Error("No items found");
     }
 
-    console.log("Items",Items);
+    console.log("Items", Items);
 
     const rtnData = Items.map((item) => unmarshall(item) as ITranslateDbObject);
     console.log(rtnData);
-
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // required for CORS support to work
-        "Access-Control-Allow-Credentials": true, //required for cookies
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "*",
-      },
-      body: JSON.stringify(rtnData), // stringify - JSON convert to String
-    };
+    return gateway.createSuccessJsonResponse(rtnData);
   } catch (e: any) {
     // errors are always any type
     console.error(e);
-    return {
-      statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // required for CORS support to work
-        "Access-Control-Allow-Credentials": true, //required for cookies
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "*",
-      },
-      body: JSON.stringify(e.toString()),
-    };
+    return gateway.createErrorJsonResponse(e);
   }
 };
