@@ -1,8 +1,7 @@
-import * as clientTranslate from "@aws-sdk/client-translate"; // sdk - list of libraries
 import * as dynamodb from "@aws-sdk/client-dynamodb";
 import * as lambda from "aws-lambda";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { gateway } from "/opt/nodejs/utils-lambda-layer";
+import { gateway, getTranslation, exception } from "/opt/nodejs/utils-lambda-layer";
 import {
   ITranslateDbObject,
   ITranslateRequest,
@@ -16,14 +15,14 @@ console.log("{ TRANSLATION_TABLE_NAME, TRANSLATION_PARTITION_KEY }", {
 });
 
 if (!TRANSLATION_TABLE_NAME) {
-  throw new Error("TRANSLATION_TABLE_NAME is empty");
+  throw new exception.MissingEnvironmentVariable("TRANSLATION_TABLE_NAME");
 }
 
 if (!TRANSLATION_PARTITION_KEY) {
-  throw new Error("TRANSLATION_PARTITION_KEY is empty");
+  throw new exception.MissingEnvironmentVariable("TRANSLATION_PARTITION_KEY");
 }
 
-const TranslateClient = new clientTranslate.TranslateClient({});
+// const TranslateClient = new clientTranslate.TranslateClient({});
 const dynamodbClient = new dynamodb.DynamoDBClient({});
 
 export const translate: lambda.APIGatewayProxyHandler = async function (
@@ -32,21 +31,19 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
 ) {
   try {
     if (!event.body) {
-      throw new Error("Body is empty");
+      throw new exception.MissingBodyData();
     }
-
-    console.log(event.body);
 
     let body = JSON.parse(event.body) as ITranslateRequest; // parse - String convert to JSON
 
     if (!body.sourceLang) {
-      throw new Error("sourceLang is empty");
+      throw new exception.MissingParameters("sourceLang");
     }
     if (!body.targetLang) {
-      throw new Error("targetLang is empty");
+      throw new exception.MissingParameters("targetLang");
     }
     if (!body.sourceText) {
-      throw new Error("sourceText is empty");
+      throw new exception.MissingParameters("sourceText");
     }
 
     const { sourceLang, targetLang, sourceText } = body;
@@ -54,17 +51,11 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
     const now = new Date(Date.now()).toString();
     console.log(now);
 
-    const translateCmd = new clientTranslate.TranslateTextCommand({
-      SourceLanguageCode: sourceLang,
-      TargetLanguageCode: targetLang,
-      Text: sourceText,
-    });
-
-    const result = await TranslateClient.send(translateCmd);
+    const result = await getTranslation(body);
     console.log(result);
 
     if (!result.TranslatedText) {
-      throw new Error("Translation is  empty");
+      throw new exception.MissingParameters("TranslationText");
     }
 
     const rtnData: ITranslateResponse = {
@@ -109,7 +100,7 @@ export const getTranslations: lambda.APIGatewayProxyHandler = async function (
     );
 
     if (!Items) {
-      throw new Error("No items found");
+      throw new exception.MissingParameters("Items");
     }
 
     console.log("Items", Items);

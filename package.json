@@ -9,7 +9,8 @@
   "scripts": {
     "frontend-dev": "npm run dev --workspace=@sff/frontend",
     "deploy": "cd infrastructure && cdk deploy -f --require-approval never",
-    "build-utils-lambda-layer": "npm run build --workspace=@sff/utils-lambda-layer"
+    "build-utils-lambda-layer": "npm run build --workspace=@sff/utils-lambda-layer",
+    "watch-build-utils-lambda-layer": "npm run watch --workspace=@sff/utils-lambda-layer"
   },
   "dependencies": {
     "next": "^15.1.6"
