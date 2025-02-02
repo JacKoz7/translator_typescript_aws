@@ -8,14 +8,14 @@ import {
 
 const URL = "https://aaxyc731g5.execute-api.eu-central-1.amazonaws.com/prod";
 
-export const translateText = async ({
+const translateText = async ({
   inputLang,
-  outputLang,
   inputText,
+  outputLang,
 }: {
   inputLang: string;
-  outputLang: string;
   inputText: string;
+  outputLang: string;
 }) => {
   try {
     const request: ITranslateRequest = {
@@ -28,48 +28,50 @@ export const translateText = async ({
       method: "POST",
       body: JSON.stringify(request),
     });
+
     const rtnValue = (await result.json()) as ITranslateResponse;
     return rtnValue;
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
     throw e;
   }
 };
 
-export const getTranslations = async () => {
+const getTranslations = async () => {
   try {
     const result = await fetch(URL, {
       method: "GET",
     });
+
     const rtnValue = (await result.json()) as Array<ITranslateDbObject>;
-    console.log(rtnValue);
     return rtnValue;
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
     throw e;
   }
 };
 
 export default function Home() {
-  const [inputText, setInputText] = useState<string>("");
   const [inputLang, setInputLang] = useState<string>("");
   const [outputLang, setOutputLang] = useState<string>("");
+  const [inputText, setInputText] = useState<string>("");
   const [outputText, setOutputText] = useState<ITranslateResponse | null>(null);
   const [translations, setTranslations] = useState<Array<ITranslateDbObject>>(
     []
   );
 
   return (
-    <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+    <main className="flex flex-col m-8">
       <form
+        className="flex flex-col space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
-          // console.log({ inputText, inputLang, outputLang });
           const result = await translateText({
-            inputText,
             inputLang,
             outputLang,
+            inputText,
           });
+          console.log("Translation result:", result);
           setOutputText(result);
         }}
       >
@@ -78,7 +80,8 @@ export default function Home() {
           <textarea
             id="inputText"
             value={inputText}
-            onChange={(event) => setInputText(event.target.value)}
+            onChange={(e) => setInputText(e.target.value)}
+            rows={3}
           />
         </div>
 
@@ -86,8 +89,9 @@ export default function Home() {
           <label htmlFor="inputLang">Input Language:</label>
           <input
             id="inputLang"
+            type="text"
             value={inputLang}
-            onChange={(event) => setInputLang(event.target.value)}
+            onChange={(e) => setInputLang(e.target.value)}
           />
         </div>
 
@@ -95,48 +99,54 @@ export default function Home() {
           <label htmlFor="outputLang">Output Language:</label>
           <input
             id="outputLang"
+            type="text"
             value={outputLang}
-            onChange={(event) => setOutputLang(event.target.value)}
+            onChange={(e) => setOutputLang(e.target.value)}
           />
         </div>
 
-        <button className="btn bg-blue-500 p-2 mt-2 rounded-xl" type="submit">
-          Translate
+        <button className="btn bg-blue-500" type="submit">
+          translate
         </button>
       </form>
+
       <div>
-        <p>result:</p>
-        <pre style={{ whiteSpace: "pre-wrap" }} className="w-full">
+        <p>Result:</p>
+        <div>
           {JSON.stringify(outputText, null, 2)}
-        </pre>
+        </div>
       </div>
 
       <button
-        className="btn bg-blue-500 p-2 mt-2 rounded-xl"
+        className="btn bg-blue-500"
         type="button"
         onClick={async () => {
           const rtnValue = await getTranslations();
+          console.log("Translations:", rtnValue);
           setTranslations(rtnValue);
         }}
       >
-        get translations
+        getTranslations
       </button>
-
       <div>
-        <p>result:</p>
-        {translations.map((item) => {
-          return (
-            <div key={item.sourceText}>
-              <p>
-                {item.sourceLang}/{item.sourceText}
-              </p>
-              <p>
-                {item.targetLang}/{item.targetText}
-              </p>
-              <br></br>
-            </div>
-          );
-        })}
+        <p>Result:</p>
+        <div>
+          {translations.map((item) => {
+            console.log("Rendering item:", item);
+            return (
+              <div key={item.requestId}>
+                <p>
+                  {item.sourceLang}/{item.sourceText}
+                </p>
+                <p>
+                  {item.targetLang}/{item.targetText}
+                </p>
+                <br></br>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
     </main>
   );

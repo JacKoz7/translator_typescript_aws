@@ -6,34 +6,8 @@ import * as lambdaNodeJs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as iam from "aws-cdk-lib/aws-iam";
-
-// Chapter 4 - CDK explained (two constructors and buckets)
-
-// class ImageGallery extends Construct {
-//   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-//     super(scope, id);
-
-//     new s3.Bucket(this, "OriginalSizeImageBucket", {
-//       versioned: true,
-//       removalPolicy: cdk.RemovalPolicy.DESTROY,
-//       autoDeleteObjects: true,
-//     });
-
-//     new s3.Bucket(this, "ThumbnailSizeImageBucket", {
-//       versioned: true,
-//       removalPolicy: cdk.RemovalPolicy.DESTROY,
-//       autoDeleteObjects: true,
-//     });
-//   }
-// }
-
-// class PhotoManagment extends Construct {
-//   //konstruktor
-//   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-//     super(scope, id);
-//     new ImageGallery(this, "photoAlbumGallery");
-//   }
-// }
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 
 export class TempCdkStackStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -137,6 +111,28 @@ export class TempCdkStackStack extends cdk.Stack {
       "GET",
       new apigateway.LambdaIntegration(getTranslationsLambda)
     );
+
+    // bucket where website dist will reside
+    const bucket = new s3.Bucket(this, "WebsiteBucket", {
+      websiteIndexDocument: "index.html",
+      websiteErrorDocument: "404.html",
+      publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    // s3 construct to deploy the website content
+
+    new s3deploy.BucketDeployment(this, "WebsiteDeploy",{
+      destinationBucket: bucket,
+      sources: [s3deploy.Source.asset("../apps/frontend/dist")]
+    })
 
     // granting read and write access to the dynamodb table
     // has all permissions (not only 4)
