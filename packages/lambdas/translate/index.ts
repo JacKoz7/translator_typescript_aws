@@ -1,7 +1,10 @@
-import * as dynamodb from "@aws-sdk/client-dynamodb";
 import * as lambda from "aws-lambda";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { gateway, getTranslation, exception } from "/opt/nodejs/utils-lambda-layer";
+import {
+  gateway,
+  getTranslation,
+  exception,
+  TranslationTable,
+} from "/opt/nodejs/utils-lambda-layer";
 import {
   ITranslateDbObject,
   ITranslateRequest,
@@ -9,10 +12,6 @@ import {
 } from "@sff/shared-types";
 
 const { TRANSLATION_TABLE_NAME, TRANSLATION_PARTITION_KEY } = process.env;
-console.log("{ TRANSLATION_TABLE_NAME, TRANSLATION_PARTITION_KEY }", {
-  TRANSLATION_TABLE_NAME,
-  TRANSLATION_PARTITION_KEY,
-});
 
 if (!TRANSLATION_TABLE_NAME) {
   throw new exception.MissingEnvironmentVariable("TRANSLATION_TABLE_NAME");
@@ -22,8 +21,10 @@ if (!TRANSLATION_PARTITION_KEY) {
   throw new exception.MissingEnvironmentVariable("TRANSLATION_PARTITION_KEY");
 }
 
-// const TranslateClient = new clientTranslate.TranslateClient({});
-const dynamodbClient = new dynamodb.DynamoDBClient({});
+const translateTable = new TranslationTable({
+  tableName: TRANSLATION_TABLE_NAME,
+  partitionKey: TRANSLATION_PARTITION_KEY,
+});
 
 export const translate: lambda.APIGatewayProxyHandler = async function (
   event: lambda.APIGatewayProxyEvent,
@@ -71,12 +72,8 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
       ...rtnData,
     };
 
-    const tableInsertCmd: dynamodb.PutItemCommandInput = {
-      TableName: TRANSLATION_TABLE_NAME,
-      Item: marshall(tableObj), // marshal converts tableObj to format suitable for our db
-    };
+    await translateTable.insert(tableObj);
 
-    await dynamodbClient.send(new dynamodb.PutItemCommand(tableInsertCmd));
     return gateway.createSuccessJsonResponse(rtnData);
   } catch (e: any) {
     // errors are always any type
@@ -90,23 +87,7 @@ export const getTranslations: lambda.APIGatewayProxyHandler = async function (
   context: lambda.Context
 ) {
   try {
-    const ScanCmd: dynamodb.ScanCommandInput = {
-      TableName: TRANSLATION_TABLE_NAME,
-    };
-    console.log("ScanCmd", ScanCmd);
-
-    const { Items } = await dynamodbClient.send(
-      new dynamodb.ScanCommand(ScanCmd)
-    );
-
-    if (!Items) {
-      throw new exception.MissingParameters("Items");
-    }
-
-    console.log("Items", Items);
-
-    const rtnData = Items.map((item) => unmarshall(item) as ITranslateDbObject);
-    console.log(rtnData);
+    const rtnData = await translateTable.getAll();
     return gateway.createSuccessJsonResponse(rtnData);
   } catch (e: any) {
     // errors are always any type
