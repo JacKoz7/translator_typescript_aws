@@ -8,6 +8,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 
 export class TempCdkStackStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -127,12 +128,38 @@ export class TempCdkStackStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
+    const distro = new cloudfront.CloudFrontWebDistribution(
+      this,
+      "WebsiteCloudFrontDist",
+      {
+        originConfigs: [
+          {
+            s3OriginSource: {
+              s3BucketSource: bucket,
+            },
+            behaviors: [
+              {
+                isDefaultBehavior: true,
+              },
+            ],
+          },
+        ],
+      }
+    );
+
     // s3 construct to deploy the website content
 
-    new s3deploy.BucketDeployment(this, "WebsiteDeploy",{
+    new s3deploy.BucketDeployment(this, "WebsiteDeploy", {
       destinationBucket: bucket,
-      sources: [s3deploy.Source.asset("../apps/frontend/dist")]
-    })
+      sources: [s3deploy.Source.asset("../apps/frontend/dist")],
+      distribution: distro,
+      distributionPaths: ["/*"],
+    });
+
+    new cdk.CfnOutput(this, "webUrl", {
+      exportName: "webUrl",
+      value: `https://${distro.distributionDomainName}`,
+    });
 
     // granting read and write access to the dynamodb table
     // has all permissions (not only 4)
