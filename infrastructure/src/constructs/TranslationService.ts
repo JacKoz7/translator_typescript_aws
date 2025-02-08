@@ -7,10 +7,9 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as path from "path";
 import * as lambdaNodeJs from "aws-cdk-lib/aws-lambda-nodejs";
 import { RestApiService } from "./RestApiService";
+import { createNodeJsLambda, lambdaLayersDirPath, lambdasDirPath } from "../helpers";
 
 export interface ITranslationServiceProps extends cdk.StackProps {
-  lambdasDirPath: string;
-  lambdaLayersDirPath: string;
   restApi: RestApiService;
 }
 
@@ -19,13 +18,9 @@ export class TranslationService extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    { lambdasDirPath, lambdaLayersDirPath, restApi }: ITranslationServiceProps
+    { restApi }: ITranslationServiceProps
   ) {
     super(scope, id);
-
-    const translateLambdaPath = path.resolve(
-      path.join(lambdasDirPath, "translate/index.ts")
-    );
 
     const utilsLambdaLayerPath = path.resolve(
       path.join(lambdaLayersDirPath, "utils-lambda-layer")
@@ -70,21 +65,16 @@ export class TranslationService extends Construct {
     });
 
     // lambda function that performs translations
-    const translateLambda = new lambdaNodeJs.NodejsFunction(
-      this,
-      "translateLambda",
-      {
-        entry: translateLambdaPath,
-        handler: "translate",
-        runtime: lambda.Runtime.NODEJS_22_X,
-        initialPolicy: [translateServicePolicy, translateTablePolicy],
-        layers: [utilsLambdaLayer],
-        environment: {
-          TRANSLATION_TABLE_NAME: table.tableName,
-          TRANSLATION_PARTITION_KEY: "requestId",
-        },
-      }
-    );
+    const translateLambda = createNodeJsLambda(this, "translateLambda", {
+      lambdaRelPath: "translate/index.ts",
+      handler: "translate",
+      initialPolicy: [translateServicePolicy, translateTablePolicy],
+      lambdaLayers: [utilsLambdaLayer],
+      environment: {
+        TRANSLATION_TABLE_NAME: table.tableName,
+        TRANSLATION_PARTITION_KEY: "requestId",
+      },
+    });
 
     // adding lambda to restApi
     restApi.addTranslateMethod({
@@ -93,21 +83,16 @@ export class TranslationService extends Construct {
     });
 
     // get translations lambda
-    const getTranslationsLambda = new lambdaNodeJs.NodejsFunction(
-      this,
-      "getTranslationsLambda",
-      {
-        entry: translateLambdaPath,
-        handler: "getTranslations",
-        runtime: lambda.Runtime.NODEJS_22_X,
-        initialPolicy: [translateTablePolicy],
-        layers: [utilsLambdaLayer],
-        environment: {
-          TRANSLATION_TABLE_NAME: table.tableName,
-          TRANSLATION_PARTITION_KEY: "requestId",
-        },
-      }
-    );
+    const getTranslationsLambda = createNodeJsLambda(this, "getTranslationsLambda", {
+      lambdaRelPath: "translate/index.ts",
+      handler: "getTranslations",
+      initialPolicy: [translateTablePolicy],
+      lambdaLayers: [utilsLambdaLayer],
+      environment: {
+        TRANSLATION_TABLE_NAME: table.tableName,
+        TRANSLATION_PARTITION_KEY: "requestId",
+      },
+    });
 
     // adding the get translate to restApi
     restApi.addTranslateMethod({
