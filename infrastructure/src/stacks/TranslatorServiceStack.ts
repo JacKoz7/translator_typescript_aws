@@ -5,6 +5,7 @@ import {
   CertificateWrapper,
   RestApiService,
   StaticWebsiteDeployment,
+  UserAuthSupportService,
 } from "../constructs";
 import { TranslationService } from "../constructs/TranslationService";
 import { getConfig } from "../helpers";
@@ -24,6 +25,9 @@ export class TranslatorServiceStack extends cdk.Stack {
       apiUrl,
       webUrl,
     });
+
+    // user auth support
+    const userAuth = new UserAuthSupportService(this, "UserAuthSupport")
 
     const restApi = new RestApiService(this, "restApiService", {
       apiUrl,

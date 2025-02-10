@@ -9,6 +9,7 @@
         - Lambda Layer
         - DynamoDB
         - Route53
+        - Cognito
         - S3
     - AWS SDK v3
     - NPM/Monorepo using workspaces
