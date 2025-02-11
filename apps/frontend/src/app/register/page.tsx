@@ -1,9 +1,23 @@
 "use client";
-import { useState } from "react";
-import { signUp, confirmSignUp } from "aws-amplify/auth";
+import { useEffect, useState } from "react";
+import {
+  signUp,
+  confirmSignUp,
+  SignUpOutput,
+  SignInOutput,
+  autoSignIn,
+} from "aws-amplify/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function Register() {
+type ISignUpState = SignUpOutput["nextStep"];
+type ISignInState = SignInOutput["nextStep"];
+
+function RegistrationForm({
+  onStepChange,
+}: {
+  onStepChange: (step: ISignUpState) => void;
+}) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
@@ -28,6 +42,7 @@ export default function Register() {
           });
 
           console.log(nextStep.signUpStep);
+          onStepChange(nextStep);
         } catch (e) {}
       }}
     >
@@ -70,4 +85,93 @@ export default function Register() {
       </Link>
     </form>
   );
+}
+
+function ConfirmSignUp({
+  onStepChange,
+}: {
+  onStepChange: (step: ISignUpState) => void;
+}) {
+  const [verificationCode, setVerificationCode] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+
+  return (
+    <form
+      className="flex flex-col space-y-4"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        try {
+          const { nextStep } = await confirmSignUp({
+            confirmationCode: verificationCode,
+            username: email,
+          });
+
+          console.log(nextStep.signUpStep);
+          onStepChange(nextStep);
+        } catch (e) {}
+      }}
+    >
+      <div>
+        <label htmlFor="email">E-mail:</label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="verificationCode">Verification code:</label>
+        <input
+          id="verificationCode"
+          type="text"
+          value={verificationCode}
+          onChange={(e) => setVerificationCode(e.target.value)}
+        />
+      </div>
+
+      <button className="btn bg-blue-500" type="submit">
+        Verify
+      </button>
+    </form>
+  );
+}
+
+function AutoSignIn({
+  onStepChange,
+}: {
+  onStepChange: (step: ISignInState) => void;
+}) {
+  useEffect(() => {
+    const asyncSignIn = async () => {
+      const { nextStep } = await autoSignIn();
+      console.log(nextStep);
+      onStepChange(nextStep);
+    };
+    asyncSignIn();
+  }, []);
+  return <div>Signing in...</div>;
+}
+
+export default function Register() {
+  const router = useRouter();
+  const [step, setStep] = useState<ISignUpState | ISignInState | null>(null);
+
+  useEffect(() => {
+    if (!step) return;
+    if ((step as ISignInState).signInStep === "DONE") {
+      router.push("/");
+    }
+  }, [step]);
+
+  if (step) {
+    if ((step as ISignUpState).signUpStep === "CONFIRM_SIGN_UP") {
+      return <ConfirmSignUp onStepChange={setStep} />;
+    }
+    if ((step as ISignUpState).signUpStep === "COMPLETE_AUTO_SIGN_IN") {
+      return <AutoSignIn onStepChange={setStep} />;
+    }
+  }
+  return <RegistrationForm onStepChange={setStep} />;
 }
