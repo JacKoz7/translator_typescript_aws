@@ -11,7 +11,11 @@ import {
   ITranslateResponse,
 } from "@sff/shared-types";
 
-const { TRANSLATION_TABLE_NAME, TRANSLATION_PARTITION_KEY } = process.env;
+const {
+  TRANSLATION_TABLE_NAME,
+  TRANSLATION_PARTITION_KEY,
+  TRANSLATION_SORT_KEY,
+} = process.env;
 
 if (!TRANSLATION_TABLE_NAME) {
   throw new exception.MissingEnvironmentVariable("TRANSLATION_TABLE_NAME");
@@ -21,25 +25,35 @@ if (!TRANSLATION_PARTITION_KEY) {
   throw new exception.MissingEnvironmentVariable("TRANSLATION_PARTITION_KEY");
 }
 
+if (!TRANSLATION_SORT_KEY) {
+  throw new exception.MissingEnvironmentVariable("TRANSLATION_SORT_KEY");
+}
+
 const translateTable = new TranslationTable({
   tableName: TRANSLATION_TABLE_NAME,
   partitionKey: TRANSLATION_PARTITION_KEY,
+  sortKey: TRANSLATION_SORT_KEY,
 });
 
-export const translate: lambda.APIGatewayProxyHandler = async function (
+const getUsername = (event: lambda.APIGatewayProxyEvent) => {
+  const claims = event.requestContext.authorizer?.claims;
+  if (!claims) {
+    throw new Error("user not authenticated");
+  }
+
+  const username = claims["cognito:username"];
+  if (!username) {
+    throw new Error("username doesn't exist");
+  }
+  return username;
+};
+
+export const userTranslate: lambda.APIGatewayProxyHandler = async function (
   event: lambda.APIGatewayProxyEvent,
   context: lambda.Context
 ) {
   try {
-    const claims = event.requestContext.authorizer?.claims;
-    if (!claims) {
-      throw new Error("user not authenticated");
-    }
-
-    const username = claims['cognito.username']
-    if (!username) {
-      throw new Error("username doesn't exist");
-    }
+    const username = getUsername(event);
     console.log(username);
 
     if (!event.body) {
@@ -79,6 +93,7 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
     // the table object that is saved to database
     const tableObj: ITranslateDbObject = {
       requestId: context.awsRequestId,
+      username,
       ...body,
       ...rtnData,
     };
@@ -93,16 +108,17 @@ export const translate: lambda.APIGatewayProxyHandler = async function (
   }
 };
 
-export const getTranslations: lambda.APIGatewayProxyHandler = async function (
-  event: lambda.APIGatewayProxyEvent,
-  context: lambda.Context
-) {
-  try {
-    const rtnData = await translateTable.getAll();
-    return gateway.createSuccessJsonResponse(rtnData);
-  } catch (e: any) {
-    // errors are always any type
-    console.error(e);
-    return gateway.createErrorJsonResponse(e);
-  }
-};
+export const getUserTranslations: lambda.APIGatewayProxyHandler =
+  async function (event: lambda.APIGatewayProxyEvent, context: lambda.Context) {
+    try {
+      const username = getUsername(event);
+      console.log(username);
+      // const rtnData = await translateTable.getAll();
+      const rtnData = await translateTable.query({ username });
+      return gateway.createSuccessJsonResponse(rtnData);
+    } catch (e: any) {
+      // errors are always any type
+      console.error(e);
+      return gateway.createErrorJsonResponse(e);
+    }
+  };

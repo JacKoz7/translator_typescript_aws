@@ -5,8 +5,8 @@ Amplify.configure(
   {
     Auth: {
       Cognito: {
-        userPoolId: "us-east-1_VBEzFJHdQ",
-        userPoolClientId: "7hig83rangn3pn8q8u63v2cufo",
+        userPoolId: "us-east-1_RWUy2hVT7",
+        userPoolClientId: "79unrfvdm9dm28fomomhbg6e2t",
       },
     },
   },

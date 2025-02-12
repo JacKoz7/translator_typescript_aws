@@ -12,5 +12,6 @@ export type ITranslateResponse = {
 //combination of these both above and some new fields
 export type ITranslateDbObject = ITranslateRequest &
   ITranslateResponse & {
+    username: string;
     requestId: string;
   };
