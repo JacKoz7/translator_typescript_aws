@@ -27,12 +27,13 @@ export class TranslatorServiceStack extends cdk.Stack {
     });
 
     // user auth support
-    const userAuth = new UserAuthSupportService(this, "UserAuthSupport")
+    const userAuth = new UserAuthSupportService(this, "UserAuthSupport");
 
     const restApi = new RestApiService(this, "restApiService", {
       apiUrl,
       certificate: cw.certificate,
       zone: cw.zone,
+      userPool: userAuth.userPool,
     });
 
     new TranslationService(this, "translationService", {

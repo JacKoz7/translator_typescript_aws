@@ -80,6 +80,7 @@ export class TranslationService extends Construct {
     restApi.addTranslateMethod({
       httpMethod: "POST",
       lambda: translateLambda,
+      isAuth: true,
     });
 
     // get translations lambda
@@ -98,6 +99,7 @@ export class TranslationService extends Construct {
     restApi.addTranslateMethod({
       httpMethod: "GET",
       lambda: getTranslationsLambda,
+      isAuth: true,
     });
   }
 }

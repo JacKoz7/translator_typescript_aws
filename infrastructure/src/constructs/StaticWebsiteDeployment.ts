@@ -9,7 +9,6 @@ import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import { frontendDistPath } from "../helpers";
 
-
 export interface IStaticWebsiteDeploymentProps extends cdk.StackProps {
   domain: string;
   webUrl: string;
@@ -76,6 +75,7 @@ export class StaticWebsiteDeployment extends Construct {
       sources: [s3deploy.Source.asset(frontendDistPath)],
       distribution: distro,
       distributionPaths: ["/*"],
+      memoryLimit: 512,
     });
 
     new route53.ARecord(this, "route53Domain", {

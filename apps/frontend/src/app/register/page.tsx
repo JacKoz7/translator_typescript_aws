@@ -43,7 +43,9 @@ function RegistrationForm({
 
           console.log(nextStep.signUpStep);
           onStepChange(nextStep);
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       }}
     >
       <div>
@@ -108,7 +110,9 @@ function ConfirmSignUp({
 
           console.log(nextStep.signUpStep);
           onStepChange(nextStep);
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       }}
     >
       <div>

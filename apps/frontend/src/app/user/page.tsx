@@ -1,13 +1,28 @@
 "use client";
-import { useState } from "react";
-import { signIn, signOut } from "aws-amplify/auth";
+import { useEffect, useState } from "react";
+import { getCurrentUser, signIn, signOut } from "aws-amplify/auth";
 import Link from "next/link";
 
-export default function User() {
+function Login({ onSignedIn }: { onSignedIn: () => void }) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   return (
-    <form className="flex flex-col space-y-4" onSubmit={async (event) => {}}>
+    <form
+      className="flex flex-col space-y-4"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        await signIn({
+          username: email,
+          password,
+          options: {
+            userAttributes: {
+              email,
+            },
+          },
+        });
+        onSignedIn();
+      }}
+    >
       <div>
         <label htmlFor="email">E-mail:</label>
         <input
@@ -36,5 +51,55 @@ export default function User() {
         Register
       </Link>
     </form>
+  );
+}
+
+function Logout({ onSignedOut }: { onSignedOut: () => void }) {
+  return (
+    <div className="w-full flex">
+      <button
+        className="btn bg-blue-500 w-full"
+        onClick={async () => {
+          await signOut();
+          onSignedOut();
+        }}
+      >
+        Logout
+      </button>
+    </div>
+  );
+}
+
+export default function User() {
+  // object or null - we know that user exist or not
+  // undefined is the state before we know that
+  const [user, setUser] = useState<object | null | undefined>(null);
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const currUser = await getCurrentUser();
+        console.log(currUser);
+        setUser(currUser);
+      } catch (e) {
+        console.log(e);
+        setUser(null);
+      }
+    }
+    fetchUser();
+  }, []);
+  if (user === undefined) {
+    return <p>loading...</p>;
+  }
+  if (user) {
+    return <Logout onSignedOut={() => setUser(null)} />;
+  }
+  return (
+    <Login
+      onSignedIn={async () => {
+        const currUser = await getCurrentUser();
+        console.log(currUser);
+        setUser(currUser);
+      }}
+    />
   );
 }

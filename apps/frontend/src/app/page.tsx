@@ -5,6 +5,7 @@ import {
   ITranslateRequest,
   ITranslateResponse,
 } from "@sff/shared-types";
+import { fetchAuthSession } from "aws-amplify/auth";
 
 const URL = "https://api.jacekkozlowski.com/";
 
@@ -24,9 +25,16 @@ const translateText = async ({
       sourceText: inputText,
     };
 
+    // users not logged in cant make translations
+    const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
+    console.log("authToken:", authToken);
+
     const result = await fetch(`${URL}`, {
       method: "POST",
       body: JSON.stringify(request),
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
     });
 
     const rtnValue = (await result.json()) as ITranslateResponse;
@@ -39,8 +47,15 @@ const translateText = async ({
 
 const getTranslations = async () => {
   try {
+    // users not logged in cant see translations
+    const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
+    console.log("authToken:", authToken);
+
     const result = await fetch(URL, {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
     });
 
     const rtnValue = (await result.json()) as Array<ITranslateDbObject>;
@@ -112,9 +127,7 @@ export default function Home() {
 
       <div>
         <p>Result:</p>
-        <div>
-          {JSON.stringify(outputText, null, 2)}
-        </div>
+        <div>{JSON.stringify(outputText, null, 2)}</div>
       </div>
 
       <button
@@ -146,7 +159,6 @@ export default function Home() {
             );
           })}
         </div>
-
       </div>
     </main>
   );
