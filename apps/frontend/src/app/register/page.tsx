@@ -21,6 +21,8 @@ function RegistrationForm({
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+
   return (
     <form
       className="flex flex-col space-y-4"
@@ -44,7 +46,7 @@ function RegistrationForm({
           console.log(nextStep.signUpStep);
           onStepChange(nextStep);
         } catch (e) {
-          console.log(e);
+          setError(e.toString());
         }
       }}
     >
@@ -85,6 +87,7 @@ function RegistrationForm({
       <Link className="hover:underline" href="/user">
         Login
       </Link>
+      {error && <p className="text-red-600 font-bold">{error}</p>}
     </form>
   );
 }

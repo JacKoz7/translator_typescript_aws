@@ -125,6 +125,7 @@ export default function Home() {
   const [outputLang, setOutputLang] = useState<string>("");
   const [inputText, setInputText] = useState<string>("");
   const [outputText, setOutputText] = useState<ITranslateResponse | null>(null);
+  
   const [translations, setTranslations] = useState<Array<ITranslateDbObject>>(
     []
   );
