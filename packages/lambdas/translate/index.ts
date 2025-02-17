@@ -6,7 +6,7 @@ import {
   TranslationTable,
 } from "/opt/nodejs/utils-lambda-layer";
 import {
-  ITranslateDbObject,
+  ITranslateResult,
   ITranslateRequest,
   ITranslateResponse,
 } from "@sff/shared-types";
@@ -35,6 +35,13 @@ const translateTable = new TranslationTable({
   sortKey: TRANSLATION_SORT_KEY,
 });
 
+const getCurrentTime = () => {
+  return Date.now();
+};
+const formatTime = (time: number) => {
+  return new Date(time).toString();
+};
+
 const getUsername = (event: lambda.APIGatewayProxyEvent) => {
   const claims = event.requestContext.authorizer?.claims;
   if (!claims) {
@@ -48,6 +55,32 @@ const getUsername = (event: lambda.APIGatewayProxyEvent) => {
   return username;
 };
 
+const parseTranslateRequest = (requestStr: string) => {
+  let request = JSON.parse(requestStr) as ITranslateRequest; // parse - String convert to JSON
+
+  if (!request.sourceLang) {
+    throw new exception.MissingParameters("sourceLang");
+  }
+  if (!request.targetLang) {
+    throw new exception.MissingParameters("targetLang");
+  }
+  if (!request.sourceText) {
+    throw new exception.MissingParameters("sourceText");
+  }
+
+  return request;
+};
+
+const parseDeleteRequest = (requestStr: string) => {
+  let request = JSON.parse(requestStr) as { requestId: string };
+  if (!request.requestId) {
+    throw new exception.MissingParameters("requestId");
+  }
+
+  return request;
+};
+
+// public translate call
 export const publicTranslate: lambda.APIGatewayProxyHandler = async function (
   event: lambda.APIGatewayProxyEvent,
   context: lambda.Context
@@ -56,37 +89,30 @@ export const publicTranslate: lambda.APIGatewayProxyHandler = async function (
     if (!event.body) {
       throw new exception.MissingBodyData();
     }
+    const request = parseTranslateRequest(event.body);
+    console.log("parsed request: ", request);
 
-    let body = JSON.parse(event.body) as ITranslateRequest; // parse - String convert to JSON
+    const nowEpoch = getCurrentTime();
+    console.log("nowEpoch: ",nowEpoch);
 
-    if (!body.sourceLang) {
-      throw new exception.MissingParameters("sourceLang");
-    }
-    if (!body.targetLang) {
-      throw new exception.MissingParameters("targetLang");
-    }
-    if (!body.sourceText) {
-      throw new exception.MissingParameters("sourceText");
-    }
+    const targetText = await getTranslation(request);
+    console.log("targetText: ",targetText);
 
-    const { sourceLang, targetLang, sourceText } = body;
-
-    const now = new Date(Date.now()).toString();
-    console.log(now);
-
-    const result = await getTranslation(body);
-    console.log(result);
-
-    if (!result.TranslatedText) {
-      throw new exception.MissingParameters("TranslationText");
-    }
-
-    const rtnData: ITranslateResponse = {
-      timestamp: now,
-      targetText: result.TranslatedText,
+    const response: ITranslateResponse = {
+      timestamp: formatTime(nowEpoch),
+      targetText,
     };
 
-    return gateway.createSuccessJsonResponse(rtnData);
+    const result: ITranslateResult = {
+      requestId: nowEpoch.toString(),
+      username: "",
+      ...request,
+      ...response,
+    };
+
+    console.log(result);
+
+    return gateway.createSuccessJsonResponse(result);
   } catch (e: any) {
     // errors are always any type
     console.error(e);
@@ -99,54 +125,39 @@ export const userTranslate: lambda.APIGatewayProxyHandler = async function (
   context: lambda.Context
 ) {
   try {
-    const username = getUsername(event);
-    console.log(username);
-
     if (!event.body) {
       throw new exception.MissingBodyData();
     }
 
-    let body = JSON.parse(event.body) as ITranslateRequest; // parse - String convert to JSON
+    const username = getUsername(event);
+    console.log("username: ", username);
 
-    if (!body.sourceLang) {
-      throw new exception.MissingParameters("sourceLang");
-    }
-    if (!body.targetLang) {
-      throw new exception.MissingParameters("targetLang");
-    }
-    if (!body.sourceText) {
-      throw new exception.MissingParameters("sourceText");
-    }
+    const request = parseTranslateRequest(event.body);
+    console.log("parsed request: ", request);
 
-    const { sourceLang, targetLang, sourceText } = body;
+    const nowEpoch = getCurrentTime();
+    console.log("nowEpoch: ",nowEpoch);
 
-    const now = new Date(Date.now()).toString();
-    console.log(now);
+    const targetText = await getTranslation(request);
+    console.log("targetText: ",targetText);
 
-    const result = await getTranslation(body);
-    console.log(result);
-
-    if (!result.TranslatedText) {
-      throw new exception.MissingParameters("TranslationText");
-    }
-
-    const rtnData: ITranslateResponse = {
-      timestamp: now,
-      targetText: result.TranslatedText,
+    const response: ITranslateResponse = {
+      timestamp: formatTime(nowEpoch),
+      targetText,
     };
 
     // save the translation into our translation table in database
     // the table object that is saved to database
-    const tableObj: ITranslateDbObject = {
-      requestId: context.awsRequestId,
+    const result: ITranslateResult = {
+      requestId: nowEpoch.toString(),
       username,
-      ...body,
-      ...rtnData,
+      ...request,
+      ...response,
     };
 
-    await translateTable.insert(tableObj);
+    await translateTable.insert(result);
 
-    return gateway.createSuccessJsonResponse(rtnData);
+    return gateway.createSuccessJsonResponse(result);
   } catch (e: any) {
     // errors are always any type
     console.error(e);
@@ -158,9 +169,9 @@ export const getUserTranslations: lambda.APIGatewayProxyHandler =
   async function (event: lambda.APIGatewayProxyEvent, context: lambda.Context) {
     try {
       const username = getUsername(event);
-      console.log(username);
-      // const rtnData = await translateTable.getAll();
-      const rtnData = await translateTable.query({ username });
+      console.log("username: ", username);
+
+      const rtnData = await translateTable.query({ username, requestId:"" });
       return gateway.createSuccessJsonResponse(rtnData);
     } catch (e: any) {
       // errors are always any type
@@ -172,18 +183,15 @@ export const getUserTranslations: lambda.APIGatewayProxyHandler =
 export const deleteUserTranslation: lambda.APIGatewayProxyHandler =
   async function (event: lambda.APIGatewayProxyEvent, context: lambda.Context) {
     try {
-      const username = getUsername(event);
-      console.log(username);
       if (!event.body) {
         throw new exception.MissingBodyData();
       }
+      const username = getUsername(event);
+      console.log("username: ",username);
 
-      let body = JSON.parse(event.body) as { requestId: string }; // parse - String convert to JSON
-      if (!body.requestId) {
-        throw new exception.MissingParameters("requestId");
-      }
+      const { requestId } = parseDeleteRequest(event.body);
+      console.log("requestId: ",requestId);
 
-      let requestId = body.requestId
       // const rtnData = await translateTable.getAll();
       const rtnData = await translateTable.delete({ username, requestId });
       return gateway.createSuccessJsonResponse(rtnData);
