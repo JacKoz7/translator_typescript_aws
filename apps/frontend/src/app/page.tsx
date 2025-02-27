@@ -1,134 +1,20 @@
 "use client";
 import { useState } from "react";
-import {
-  ITranslateResult,
-  ITranslateRequest,
-  ITranslateResponse,
-} from "@sff/shared-types";
-import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
-
-const URL = "https://api.jacekkozlowski.com";
-
-const translatePublicText = async ({
-  inputLang,
-  inputText,
-  outputLang,
-}: {
-  inputLang: string;
-  inputText: string;
-  outputLang: string;
-}) => {
-  try {
-    const request: ITranslateRequest = {
-      sourceLang: inputLang,
-      targetLang: outputLang,
-      sourceText: inputText,
-    };
-
-    const result = await fetch(`${URL}/public`, {
-      method: "POST",
-      body: JSON.stringify(request),
-    });
-
-    const rtnValue = (await result.json()) as ITranslateResponse;
-    return rtnValue;
-  } catch (e: unknown) {
-    console.error(e);
-    throw e;
-  }
-};
-
-const translateUsersText = async ({
-  inputLang,
-  inputText,
-  outputLang,
-}: {
-  inputLang: string;
-  inputText: string;
-  outputLang: string;
-}) => {
-  try {
-    const request: ITranslateRequest = {
-      sourceLang: inputLang,
-      targetLang: outputLang,
-      sourceText: inputText,
-    };
-
-    // users not logged in cant make translations
-    const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
-    console.log("authToken:", authToken);
-
-    const result = await fetch(`${URL}/user`, {
-      method: "POST",
-      body: JSON.stringify(request),
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    const rtnValue = (await result.json()) as ITranslateResponse;
-    return rtnValue;
-  } catch (e: unknown) {
-    console.error(e);
-    throw e;
-  }
-};
-
-const getUsersTranslations = async () => {
-  try {
-    // users not logged in cant see translations
-    const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
-    console.log("authToken:", authToken);
-
-    const result = await fetch(`${URL}/user`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    const rtnValue = (await result.json()) as Array<ITranslateResult>;
-    return rtnValue;
-  } catch (e: unknown) {
-    console.error(e);
-    throw e;
-  }
-};
-
-const deleteUserTranslation = async (item: {
-  username: string;
-  requestId: string;
-}) => {
-  try {
-    // users not logged in cant see translations
-    const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
-    console.log("authToken:", authToken);
-
-    const result = await fetch(`${URL}/user`, {
-      method: "DELETE",
-      body: JSON.stringify(item),
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    const rtnValue = (await result.json()) as Array<ITranslateResult>;
-    return rtnValue;
-  } catch (e: unknown) {
-    console.error(e);
-    throw e;
-  }
-};
+import { ITranslateResult, ITranslateResponse } from "@sff/shared-types";
+import { getCurrentUser } from "aws-amplify/auth";
+import { useTranslate } from "@/hooks";
 
 export default function Home() {
   const [inputLang, setInputLang] = useState<string>("");
   const [outputLang, setOutputLang] = useState<string>("");
   const [inputText, setInputText] = useState<string>("");
   const [outputText, setOutputText] = useState<ITranslateResponse | null>(null);
-  
-  const [translations, setTranslations] = useState<Array<ITranslateResult>>(
-    []
-  );
+  // const [translations, setTranslations] = useState<Array<ITranslateResult>>([]);
+  const { isLoading, translations } = useTranslate();
+
+  if (isLoading) {
+    return <p>Loading ...</p>;
+  }
 
   return (
     <main className="flex flex-col m-8">
@@ -137,25 +23,25 @@ export default function Home() {
         onSubmit={async (event) => {
           event.preventDefault();
           let result = null;
-          try {
-            const user = await getCurrentUser();
-            if (user) {
-              result = await translateUsersText({
-                inputLang,
-                outputLang,
-                inputText,
-              });
-            } else {
-              throw new Error("user not logged in");
-            }
-          } catch (e) {
-            console.error(e);
-            result = await translatePublicText({
-              inputLang,
-              outputLang,
-              inputText,
-            });
-          }
+          // try {
+          //   const user = await getCurrentUser();
+          //   if (user) {
+          //     result = await translateUsersText({
+          //       inputLang,
+          //       outputLang,
+          //       inputText,
+          //     });
+          //   } else {
+          //     throw new Error("user not logged in");
+          //   }
+          // } catch (e) {
+          //   console.error(e);
+          //   result = await translatePublicText({
+          //     inputLang,
+          //     outputLang,
+          //     inputText,
+          //   });
+          // }
           console.log("Translation result:", result);
           setOutputText(result);
         }}
@@ -200,7 +86,7 @@ export default function Home() {
         <div>{JSON.stringify(outputText, null, 2)}</div>
       </div>
 
-      <button
+      {/* <button
         className="btn bg-blue-500"
         type="button"
         onClick={async () => {
@@ -210,7 +96,7 @@ export default function Home() {
         }}
       >
         getTranslations
-      </button>
+      </button> */}
       <div className="flex flex-col space-y-1 p-1">
         {translations.map((item) => {
           console.log("Rendering item:", item);
@@ -226,7 +112,7 @@ export default function Home() {
                 {item.targetLang}/{item.targetText}
               </p>
               <br></br>
-              <button
+              {/* <button
                 className="btn bg-red-500 hover:bg-red-300 rounded-md p-1"
                 type="button"
                 onClick={async () => {
@@ -239,7 +125,7 @@ export default function Home() {
                 }}
               >
                 X
-              </button>
+              </button> */}
             </div>
           );
         })}
