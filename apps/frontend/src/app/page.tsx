@@ -1,16 +1,21 @@
 "use client";
 import { useState } from "react";
-import { ITranslateResult, ITranslateResponse } from "@sff/shared-types";
-import { getCurrentUser } from "aws-amplify/auth";
 import { useTranslate } from "@/hooks";
 
 export default function Home() {
   const [inputLang, setInputLang] = useState<string>("");
   const [outputLang, setOutputLang] = useState<string>("");
   const [inputText, setInputText] = useState<string>("");
-  const [outputText, setOutputText] = useState<ITranslateResponse | null>(null);
-  // const [translations, setTranslations] = useState<Array<ITranslateResult>>([]);
-  const { isLoading, translations } = useTranslate();
+
+  // located in different file for cleaner coding
+  const {
+    isLoading,
+    translations,
+    translate,
+    isTranslating,
+    deleteTranslation,
+    isDeleting,
+  } = useTranslate();
 
   if (isLoading) {
     return <p>Loading ...</p>;
@@ -22,28 +27,13 @@ export default function Home() {
         className="flex flex-col space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
-          let result = null;
-          // try {
-          //   const user = await getCurrentUser();
-          //   if (user) {
-          //     result = await translateUsersText({
-          //       inputLang,
-          //       outputLang,
-          //       inputText,
-          //     });
-          //   } else {
-          //     throw new Error("user not logged in");
-          //   }
-          // } catch (e) {
-          //   console.error(e);
-          //   result = await translatePublicText({
-          //     inputLang,
-          //     outputLang,
-          //     inputText,
-          //   });
-          // }
+          let result = await translate({
+            sourceLang: inputLang,
+            targetLang: outputLang,
+            sourceText: inputText,
+          });
+
           console.log("Translation result:", result);
-          setOutputText(result);
         }}
       >
         <div>
@@ -77,26 +67,10 @@ export default function Home() {
         </div>
 
         <button className="btn bg-blue-500" type="submit">
-          translate
+          {isTranslating ? "translating..." : "translate"}
         </button>
       </form>
 
-      <div>
-        <p>Result:</p>
-        <div>{JSON.stringify(outputText, null, 2)}</div>
-      </div>
-
-      {/* <button
-        className="btn bg-blue-500"
-        type="button"
-        onClick={async () => {
-          const rtnValue = await getUsersTranslations();
-          console.log("Translations:", rtnValue);
-          setTranslations(rtnValue);
-        }}
-      >
-        getTranslations
-      </button> */}
       <div className="flex flex-col space-y-1 p-1">
         {translations.map((item) => {
           console.log("Rendering item:", item);
@@ -112,20 +86,16 @@ export default function Home() {
                 {item.targetLang}/{item.targetText}
               </p>
               <br></br>
-              {/* <button
+              <button
                 className="btn bg-red-500 hover:bg-red-300 rounded-md p-1"
                 type="button"
                 onClick={async () => {
-                  const rtnValue = await deleteUserTranslation({
-                    requestId: item.requestId,
-                    username: item.username,
-                  });
+                  deleteTranslation(item);
                   console.log("Translations:", rtnValue);
-                  setTranslations(rtnValue);
                 }}
               >
-                X
-              </button> */}
+                {isDeleting ? "..." : "X"}
+              </button>
             </div>
           );
         })}

@@ -3,6 +3,7 @@ import {
   ITranslateResponse,
   ITranslatePrimaryKey,
   ITranslateResultList,
+  ITranslateResult,
 } from "@sff/shared-types";
 import { fetchAuthSession } from "aws-amplify/auth";
 
@@ -15,7 +16,7 @@ export const translatePublicText = async (request: ITranslateRequest) => {
       body: JSON.stringify(request),
     });
 
-    const rtnValue = (await result.json()) as ITranslateResponse;
+    const rtnValue = (await result.json()) as ITranslateResult;
     return rtnValue;
   } catch (e: unknown) {
     console.error(e);
@@ -27,7 +28,6 @@ export const translateUsersText = async (request: ITranslateRequest) => {
   try {
     // users not logged in cant make translations
     const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
-    console.log("authToken:", authToken);
 
     const result = await fetch(`${URL}/user`, {
       method: "POST",
@@ -37,7 +37,7 @@ export const translateUsersText = async (request: ITranslateRequest) => {
       },
     });
 
-    const rtnValue = (await result.json()) as ITranslateResponse;
+    const rtnValue = (await result.json()) as ITranslateResult;
     return rtnValue;
   } catch (e: unknown) {
     console.error(e);
