@@ -1,47 +1,34 @@
-import { useTranslate } from "@/hooks";
-import { IRegisterFormData, ISignUpState } from "@/lib";
-import { ITranslateRequest } from "@sff/shared-types";
-import { signUp } from "aws-amplify/auth";
+import { ILoginFormData } from "@/lib";
+import { signIn, signUp } from "aws-amplify/auth";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-export const RegistrationForm = ({
-  onStepChange,
-}: {
-  onStepChange: (step: ISignUpState) => void;
-}) => {
+export const LoginForm = ({ onSignedIn }: { onSignedIn: () => void }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IRegisterFormData>();
+  } = useForm<ILoginFormData>();
 
-  const onSubmit: SubmitHandler<IRegisterFormData> = async (
-    { password, password2, email },
+  const onSubmit: SubmitHandler<ILoginFormData> = async (
+    { password, email },
     event
   ) => {
     event && event.preventDefault();
     console.log("call on translate");
-    // translate(data);
-    // console.log(data);
+
     try {
-      if (password != password2) {
-        throw new Error("Password don't match");
-      }
-      const { nextStep } = await signUp({
+      await signIn({
         username: email,
-        password: password,
+        password,
         options: {
           userAttributes: {
             email,
           },
-          autoSignIn: true,
         },
       });
-
-      console.log(nextStep.signUpStep);
-      onStepChange(nextStep);
-    } catch (e: unknown) {
+      onSignedIn();
+    } catch (e) {
       console.error(e);
     }
   };
@@ -64,18 +51,8 @@ export const RegistrationForm = ({
         {errors.password && <span>field is required</span>}
       </div>
 
-      <div>
-        <label htmlFor="password2">Confirm password:</label>
-        <input
-          id="password2"
-          type="password"
-          {...register("password2", { required: true })}
-        />
-        {errors.password2 && <span>field is required</span>}
-      </div>
-
       <button className="btn bg-blue-500" type="submit">
-        {"Register"}
+        {"Login"}
       </button>
     </form>
   );

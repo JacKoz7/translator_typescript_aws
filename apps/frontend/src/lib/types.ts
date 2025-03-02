@@ -13,3 +13,8 @@ export type IRegisterConfirmation = {
   email: string;
   verificationCode: string;
 };
+
+export type ILoginFormData = {
+  email: string;
+  password: string;
+};
