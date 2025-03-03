@@ -1,5 +1,5 @@
 import { ILoginFormData } from "@/lib";
-import { signIn, signUp } from "aws-amplify/auth";
+import { signIn } from "aws-amplify/auth";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
