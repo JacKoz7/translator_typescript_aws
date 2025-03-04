@@ -1,7 +1,5 @@
-import { useTranslate } from "@/hooks";
+import { useUser } from "@/hooks";
 import { IRegisterFormData, ISignUpState } from "@/lib";
-import { ITranslateRequest } from "@sff/shared-types";
-import { signUp } from "aws-amplify/auth";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -16,40 +14,23 @@ export const RegistrationForm = ({
     formState: { errors },
   } = useForm<IRegisterFormData>();
 
-  const onSubmit: SubmitHandler<IRegisterFormData> = async (
-    { password, password2, email },
-    event
-  ) => {
-    event && event.preventDefault();
-    console.log("call on translate");
-    // translate(data);
-    // console.log(data);
-    try {
-      if (password != password2) {
-        throw new Error("Password don't match");
-      }
-      const { nextStep } = await signUp({
-        username: email,
-        password: password,
-        options: {
-          userAttributes: {
-            email,
-          },
-          autoSignIn: true,
-        },
-      });
+  const { register: accountRegister } = useUser();
 
-      console.log(nextStep.signUpStep);
-      onStepChange(nextStep);
-    } catch (e: unknown) {
-      console.error(e);
-    }
+  const onSubmit: SubmitHandler<IRegisterFormData> = async (data, event) => {
+    event && event.preventDefault();
+
+    accountRegister(data).then((nextStep) => {
+      if (nextStep) {
+        console.log(nextStep.signUpStep);
+        onStepChange(nextStep);
+      }
+    });
   };
 
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="email">E-mail:</label>
+        <label htmlFor="email">Email:</label>
         <input id="email" {...register("email", { required: true })} />
         {errors.email && <span>field is required</span>}
       </div>
@@ -65,7 +46,7 @@ export const RegistrationForm = ({
       </div>
 
       <div>
-        <label htmlFor="password2">Confirm password:</label>
+        <label htmlFor="password2">Retype Password:</label>
         <input
           id="password2"
           type="password"
@@ -75,7 +56,7 @@ export const RegistrationForm = ({
       </div>
 
       <button className="btn bg-blue-500" type="submit">
-        {"Register"}
+        {"register"}
       </button>
     </form>
   );

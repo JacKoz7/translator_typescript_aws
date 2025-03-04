@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { ConfigureAmplify, Provider } from "@/components/";
+import { ConfigureAmplify, Provider, Navbar } from "@/components/";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +22,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConfigureAmplify />
         <Provider>
-          <div className="flex gap-2 px-4 py-2 bg-orange-400">
-            <Link href="/">Home</Link>
-            <Link href="/user">User</Link>
-          </div>
+          <Navbar/>
           {children}
+          <Toaster/>
         </Provider>
       </body>
     </html>

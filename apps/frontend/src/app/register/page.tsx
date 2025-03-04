@@ -1,36 +1,37 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  autoSignIn,
-} from "aws-amplify/auth";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ISignInState, ISignUpState } from "@/lib";
-import { RegistrationForm } from "@/components/RegistrationForm";
-import { ConfirmSignUp } from "@/components";
+import { ConfirmSignUp, RegistrationForm } from "@/components";
+import { useUser } from "@/hooks";
 
 function AutoSignIn({
   onStepChange,
 }: {
   onStepChange: (step: ISignInState) => void;
 }) {
+  const { autoLogin } = useUser();
+
   useEffect(() => {
-    const asyncSignIn = async () => {
-      const { nextStep } = await autoSignIn();
-      console.log(nextStep);
-      onStepChange(nextStep);
-    };
-    asyncSignIn();
+    autoLogin().then((nextStep) => {
+      if (nextStep) {
+        console.log(nextStep);
+        onStepChange(nextStep);
+      }
+    });
   }, []);
-  return <div>Signing in...</div>;
+
+  return <div>signing in...</div>;
 }
 
 export default function Register() {
   const router = useRouter();
-  const [step, setStep] = useState<ISignUpState | ISignInState | null>(null);
+  const [step, setStep] = useState<ISignInState | ISignUpState | null>(null);
 
   useEffect(() => {
-    if (!step) return;
+    if (!step) {
+      return;
+    }
     if ((step as ISignInState).signInStep === "DONE") {
       router.push("/");
     }
@@ -44,5 +45,6 @@ export default function Register() {
       return <AutoSignIn onStepChange={setStep} />;
     }
   }
+
   return <RegistrationForm onStepChange={setStep} />;
 }

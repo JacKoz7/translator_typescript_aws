@@ -3,4 +3,7 @@ export * from "./provider";
 export * from "./TranslateRequestForm";
 export * from "./TranslateRequestForm";
 export * from "./ConfirmSignUp";
+export * from "./RegistrationForm";
 export * from "./LoginForm";
+export * from "./AppProvider";
+export * from "./Navbar";

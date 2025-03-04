@@ -1,49 +1,51 @@
-import { ILoginFormData } from "@/lib";
-import { signIn } from "aws-amplify/auth";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useUser } from "@/hooks/useUser";
+import { ILoginFormData } from "@/lib";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
-export const LoginForm = ({ onSignedIn }: { onSignedIn: () => void }) => {
+export const LoginForm = ({ onSignedIn }: { onSignedIn?: () => void }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ILoginFormData>();
 
-  const onSubmit: SubmitHandler<ILoginFormData> = async (
-    { password, email },
-    event
-  ) => {
-    event && event.preventDefault();
-    console.log("call on translate");
+  const { login, busy } = useUser();
 
-    try {
-      await signIn({
-        username: email,
-        password,
-        options: {
-          userAttributes: {
-            email,
-          },
-        },
-      });
-      onSignedIn();
-    } catch (e) {
-      console.error(e);
+  const onSubmit: SubmitHandler<ILoginFormData> = async (data, event) => {
+    // event && event.preventDefault();
+    if (event) {
+      event.preventDefault();
     }
+
+    console.log("call on translate");
+    login(data).then(() => {
+      // onSignedIn && onSignedIn();
+      if (onSignedIn) {
+        onSignedIn();
+      }
+    });
   };
 
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="email">E-mail:</label>
-        <input id="email" {...register("email", { required: true })} />
+        <Label htmlFor="email">E-mail:</Label>
+        <Input
+          disabled={busy}
+          id="email"
+          {...register("email", { required: true })}
+        />
         {errors.email && <span>field is required</span>}
       </div>
 
       <div>
-        <label htmlFor="password">Password:</label>
-        <input
+        <Label htmlFor="password">Password:</Label>
+        <Input
+          disabled={busy}
           id="password"
           type="password"
           {...register("password", { required: true })}
@@ -51,9 +53,7 @@ export const LoginForm = ({ onSignedIn }: { onSignedIn: () => void }) => {
         {errors.password && <span>field is required</span>}
       </div>
 
-      <button className="btn bg-blue-500" type="submit">
-        {"Login"}
-      </button>
+      <Button type="submit">{busy ? "logging in..." : "Login"}</Button>
     </form>
   );
 };

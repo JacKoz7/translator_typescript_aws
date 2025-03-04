@@ -1,7 +1,5 @@
-import { useTranslate } from "@/hooks";
-import { IRegisterConfirmation, IRegisterFormData, ISignUpState } from "@/lib";
-import { ITranslateRequest } from "@sff/shared-types";
-import { confirmSignUp, signUp } from "aws-amplify/auth";
+import { useUser } from "@/hooks";
+import { IRegisterConfirmation, ISignUpState } from "@/lib";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -16,31 +14,25 @@ export const ConfirmSignUp = ({
     formState: { errors },
   } = useForm<IRegisterConfirmation>();
 
+  const { confirmRegister } = useUser();
+
   const onSubmit: SubmitHandler<IRegisterConfirmation> = async (
-    { email, verificationCode },
+    data,
     event
   ) => {
     event && event.preventDefault();
-    console.log("call on translate");
-
-    try {
-      console.log("on confirm called")
-      const { nextStep } = await confirmSignUp({
-        confirmationCode: verificationCode,
-        username: email,
-      });
-
-      console.log(nextStep.signUpStep);
-      onStepChange(nextStep);
-    } catch (e) {
-      console.log(e);
-    }
+    confirmRegister(data).then((nextStep) => {
+      if (nextStep) {
+        console.log(nextStep.signUpStep);
+        onStepChange(nextStep);
+      }
+    });
   };
 
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="email">E-mail:</label>
+        <label htmlFor="email">Email:</label>
         <input id="email" {...register("email", { required: true })} />
         {errors.email && <span>field is required</span>}
       </div>
@@ -56,7 +48,7 @@ export const ConfirmSignUp = ({
       </div>
 
       <button className="btn bg-blue-500" type="submit">
-        {"Confirm"}
+        {"confirm"}
       </button>
     </form>
   );
