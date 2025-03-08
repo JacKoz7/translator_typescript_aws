@@ -1,56 +1,46 @@
 "use client";
-import { useState } from "react";
 import { useTranslate } from "@/hooks";
-import { TranslateRequestForm } from "@/components";
+import { TranslateCard, TranslateRequestForm, useApp } from "@/components";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 export default function Home() {
-
-
   // located in different file for cleaner coding
-  const {
-    isLoading,
-    translations,
-    deleteTranslation,
-    isDeleting,
-  } = useTranslate();
+  const { isLoading, translations, deleteTranslation, isDeleting } =
+    useTranslate();
+  const { selectedTranslation, setSelectedTranslation } = useApp();
 
   if (isLoading) {
     return <p>Loading ...</p>;
   }
 
   return (
-    <main className="flex flex-col m-8">
-
-    <TranslateRequestForm/>
-    
-      <div className="flex flex-col space-y-1 p-1">
-        {translations.map((item) => {
-          console.log("Rendering item:", item);
-          return (
-            <div
-              className="flex flex-row p-1 justify-between spacing-x-1 bg-slate-500"
-              key={item.requestId}
-            >
-              <p>
-                {item.sourceLang}/{item.sourceText}
-              </p>
-              <p>
-                {item.targetLang}/{item.targetText}
-              </p>
-              <br></br>
-              <button
-                className="btn bg-red-500 hover:bg-red-300 rounded-md p-1"
-                type="button"
-                onClick={async () => {
-                  deleteTranslation(item);
-                }}
-              >
-                {isDeleting ? "..." : "X"}
-              </button>
-            </div>
-          );
-        })}
-      </div>
+    <main className="flex flex-col h-screen">
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel>
+          <div className="bg-gray-900 w-full h-full flex flex-col space-y-2 p-2">
+            {translations.map((item) => {
+              return (
+                <TranslateCard
+                  selected={item.requestId === selectedTranslation?.requestId}
+                  onSelected={setSelectedTranslation}
+                  key={item.requestId}
+                  translateItem={item}
+                />
+              );
+            })}
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel>
+          <div className="p-4">
+            <TranslateRequestForm />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </main>
   );
 }

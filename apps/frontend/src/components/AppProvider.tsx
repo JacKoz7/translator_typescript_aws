@@ -1,5 +1,6 @@
 "use client";
 import { IAuthUser } from "@/lib";
+import { ITranslateResult } from "@sff/shared-types";
 import React, { useContext, createContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +10,8 @@ type IAppContext = {
   setUser: (user: IAuthUser | null) => void;
   setError: (msg: string) => void;
   resetError: () => void;
+  selectedTranslation: ITranslateResult | null;
+  setSelectedTranslation: (item: ITranslateResult) => void;
 };
 
 const AppContext = createContext<IAppContext>({
@@ -16,9 +19,13 @@ const AppContext = createContext<IAppContext>({
   setUser: (user) => {},
   setError: (msg) => {},
   resetError: () => {},
+  selectedTranslation: null,
+  setSelectedTranslation: (item: ITranslateResult) => {},
 });
 
 function useInitialApp(): IAppContext {
+  const [selectedTranslation, setSelectedTranslation] =
+    useState<ITranslateResult | null>(null);
   const [user, setUser] = useState<IAuthUser | null | undefined>(undefined);
 
   return {
@@ -30,6 +37,8 @@ function useInitialApp(): IAppContext {
     resetError: () => {
       toast.dismiss();
     },
+    selectedTranslation,
+    setSelectedTranslation,
   };
 }
 

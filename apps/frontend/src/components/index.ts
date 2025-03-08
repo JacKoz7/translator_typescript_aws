@@ -7,3 +7,4 @@ export * from "./RegistrationForm";
 export * from "./LoginForm";
 export * from "./AppProvider";
 export * from "./Navbar";
+export * from "./TranslateCard";

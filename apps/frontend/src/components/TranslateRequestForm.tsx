@@ -1,27 +1,45 @@
+"use client"
 import { useTranslate } from "@/hooks";
 import { ITranslateRequest } from "@sff/shared-types";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+import { useApp } from "./AppProvider";
+
 export const TranslateRequestForm = () => {
   const { translate, isTranslating } = useTranslate();
+  const { selectedTranslation } = useApp();
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<ITranslateRequest>();
 
+  // whenever the value changes of the selected translation we are going to update our form
+  useEffect(()=>{
+    if(selectedTranslation){
+      setValue("sourceLang", selectedTranslation.sourceLang);
+      setValue("sourceText", selectedTranslation.sourceText);
+      setValue("targetLang", selectedTranslation.targetLang);
+    }
+  },[selectedTranslation])
+
   const onSubmit: SubmitHandler<ITranslateRequest> = (data, event) => {
-    event && event.preventDefault();
-    console.log("call on translate");
+    event?.preventDefault();
+    console.log("Calling translate function with data:", data);
     translate(data);
   };
 
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="sourceText">Input text:</label>
-        <textarea
+        <Label htmlFor="sourceText">Input text:</Label>
+        <Textarea
           id="sourceText"
           {...register("sourceText", { required: true })}
           rows={3}
@@ -30,8 +48,8 @@ export const TranslateRequestForm = () => {
       </div>
 
       <div>
-        <label htmlFor="sourceLang">Input Language:</label>
-        <input
+        <Label htmlFor="sourceLang">Input Language:</Label>
+        <Input
           id="sourceLang"
           type="text"
           {...register("sourceLang", { required: true })}
@@ -40,8 +58,8 @@ export const TranslateRequestForm = () => {
       </div>
 
       <div>
-        <label htmlFor="targetLang">Output Language:</label>
-        <input
+        <Label htmlFor="targetLang">Output Language:</Label>
+        <Input
           id="targetLang"
           type="text"
           {...register("targetLang", { required: true })}
@@ -49,9 +67,19 @@ export const TranslateRequestForm = () => {
         {errors.targetLang && <span>field is required</span>}
       </div>
 
-      <button className="btn bg-blue-500" type="submit">
+      <Button type="submit">
         {isTranslating ? "translating..." : "translate"}
-      </button>
+      </Button>
+
+      <div>
+        <Label htmlFor="targetText">Translated text:</Label>
+        <Textarea
+          readOnly
+          id="targetText"
+          value={selectedTranslation?.targetText}
+          rows={3}
+        />
+      </div>
     </form>
   );
 };

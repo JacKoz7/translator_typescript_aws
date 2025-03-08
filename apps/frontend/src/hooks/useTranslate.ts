@@ -2,14 +2,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { emptyPromise, translateApi } from "@/lib";
 import { ITranslatePrimaryKey, ITranslateRequest } from "@sff/shared-types";
 import { useUser } from "./useUser";
 import { useApp } from "@/components";
 
 export const useTranslate = () => {
-  const {user} = useUser();
-  const {setError} = useApp();
+  const { user } = useUser();
+  const { setError, setSelectedTranslation } = useApp();
   const queryClient = useQueryClient();
   const queryKey = ["translate", user ? user.userId : ""];
 
@@ -41,10 +40,11 @@ export const useTranslate = () => {
           translateQuery.data.concat([result])
         );
       }
+      setSelectedTranslation(result);
     },
     onError: (e) => {
-      setError(e.toString())
-    }
+      setError(e.toString());
+    },
   });
 
   const deleteMutation = useMutation({
