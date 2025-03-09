@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useTranslate } from "@/hooks";
 import { ITranslateRequest } from "@sff/shared-types";
 import React, { useEffect } from "react";
@@ -21,13 +21,14 @@ export const TranslateRequestForm = () => {
   } = useForm<ITranslateRequest>();
 
   // whenever the value changes of the selected translation we are going to update our form
-  useEffect(()=>{
-    if(selectedTranslation){
+  useEffect(() => {
+    if (selectedTranslation) {
       setValue("sourceLang", selectedTranslation.sourceLang);
       setValue("sourceText", selectedTranslation.sourceText);
       setValue("targetLang", selectedTranslation.targetLang);
     }
-  },[selectedTranslation])
+    // zastanowic sie czy dobrze:
+  }, [selectedTranslation, setValue]);
 
   const onSubmit: SubmitHandler<ITranslateRequest> = (data, event) => {
     event?.preventDefault();

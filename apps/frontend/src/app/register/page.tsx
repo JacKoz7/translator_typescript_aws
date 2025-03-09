@@ -19,7 +19,8 @@ function AutoSignIn({
         onStepChange(nextStep);
       }
     });
-  }, []);
+    // zastanowić sie czy to dobrze:
+  }, [autoLogin, onStepChange]); 
 
   return <div>signing in...</div>;
 }

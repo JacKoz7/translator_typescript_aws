@@ -1,7 +1,11 @@
+"use client"
 import { useUser } from "@/hooks";
 import { IRegisterFormData, ISignUpState } from "@/lib";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export const RegistrationForm = ({
   onStepChange,
@@ -14,10 +18,12 @@ export const RegistrationForm = ({
     formState: { errors },
   } = useForm<IRegisterFormData>();
 
-  const { register: accountRegister } = useUser();
+  const { busy, register: accountRegister } = useUser();
 
   const onSubmit: SubmitHandler<IRegisterFormData> = async (data, event) => {
-    event && event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
 
     accountRegister(data).then((nextStep) => {
       if (nextStep) {
@@ -30,14 +36,19 @@ export const RegistrationForm = ({
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="email">Email:</label>
-        <input id="email" {...register("email", { required: true })} />
+        <Label htmlFor="email">Email:</Label>
+        <Input
+          disabled={busy}
+          id="email"
+          {...register("email", { required: true })}
+        />
         {errors.email && <span>field is required</span>}
       </div>
 
       <div>
-        <label htmlFor="password">Password:</label>
-        <input
+        <Label htmlFor="password">Password:</Label>
+        <Input
+          disabled={busy}
           id="password"
           type="password"
           {...register("password", { required: true })}
@@ -46,8 +57,9 @@ export const RegistrationForm = ({
       </div>
 
       <div>
-        <label htmlFor="password2">Retype Password:</label>
-        <input
+        <Label htmlFor="password2">Retype Password:</Label>
+        <Input
+          disabled={busy}
           id="password2"
           type="password"
           {...register("password2", { required: true })}
@@ -55,9 +67,7 @@ export const RegistrationForm = ({
         {errors.password2 && <span>field is required</span>}
       </div>
 
-      <button className="btn bg-blue-500" type="submit">
-        {"register"}
-      </button>
+      <Button type="submit">{busy ? "registering..." : "register"}</Button>
     </form>
   );
 };

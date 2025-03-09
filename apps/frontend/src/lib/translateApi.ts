@@ -1,6 +1,5 @@
 import {
   ITranslateRequest,
-  ITranslateResponse,
   ITranslatePrimaryKey,
   ITranslateResultList,
   ITranslateResult,
@@ -16,8 +15,11 @@ export const translatePublicText = async (request: ITranslateRequest) => {
       body: JSON.stringify(request),
     });
 
-    const rtnValue = (await result.json()) as ITranslateResult;
-    return rtnValue;
+    const rtnValue = (await result.json()) as ITranslateResult | string;
+    if (!result.ok) {
+      throw new Error(rtnValue as string);
+    }
+    return rtnValue as ITranslateResult;
   } catch (e: unknown) {
     console.error(e);
     throw e;
@@ -37,8 +39,11 @@ export const translateUsersText = async (request: ITranslateRequest) => {
       },
     });
 
-    const rtnValue = (await result.json()) as ITranslateResult;
-    return rtnValue;
+    const rtnValue = (await result.json()) as ITranslateResult | string;
+    if (!result.ok) {
+      throw new Error(rtnValue as string);
+    }
+    return rtnValue as ITranslateResult;
   } catch (e: unknown) {
     console.error(e);
     throw e;

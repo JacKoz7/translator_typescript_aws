@@ -50,7 +50,7 @@ export const TranslateCard = ({
           deleteTranslation(translateItem);
         }}
       >
-        {isDeleting ? "..." : <Trash2 />}
+        {isDeleting ? "deleting..." : <Trash2 />}
       </Button>
     </Card>
   );

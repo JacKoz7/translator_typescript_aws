@@ -116,7 +116,7 @@ export const publicTranslate: lambda.APIGatewayProxyHandler = async function (
   } catch (e: any) {
     // errors are always any type
     console.error(e);
-    return gateway.createErrorJsonResponse(e);
+    return gateway.createErrorJsonResponse(e.toString());
   }
 };
 
@@ -161,7 +161,7 @@ export const userTranslate: lambda.APIGatewayProxyHandler = async function (
   } catch (e: any) {
     // errors are always any type
     console.error(e);
-    return gateway.createErrorJsonResponse(e);
+    return gateway.createErrorJsonResponse(e.toString());
   }
 };
 

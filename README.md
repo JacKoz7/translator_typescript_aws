@@ -13,3 +13,13 @@
         - S3
     - AWS SDK v3
     - NPM/Monorepo using workspaces
+    - shadcn/ui for components
+
+Push infrastructure changes:
+```
+npm run cdk:deploy
+```
+build frontend for public use:
+```
+npm run frontend:build
+```

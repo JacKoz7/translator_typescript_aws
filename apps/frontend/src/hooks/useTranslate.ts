@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ITranslatePrimaryKey, ITranslateRequest } from "@sff/shared-types";
 import { useUser } from "./useUser";
 import { useApp } from "@/components";
+import { translateApi } from "@/lib";
 
 export const useTranslate = () => {
   const { user } = useUser();

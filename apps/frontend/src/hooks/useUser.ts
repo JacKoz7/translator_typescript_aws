@@ -22,6 +22,16 @@ export const useUser = () => {
   const [busy, setBusy] = useState<boolean>(false);
   const { user, setUser, setError, resetError } = useApp();
 
+  const getUser = useCallback(async () => {
+    try {
+      const currUser = await getCurrentUser();
+      setUser(currUser);
+    } catch (e) {
+      console.error(e);
+      setUser(null);
+    }
+  }, [setUser]);
+
   useEffect(() => {
     async function fetchUser() {
       setBusy(true);
@@ -30,38 +40,27 @@ export const useUser = () => {
     }
 
     fetchUser();
-  }, []);
+  }, [getUser]);
 
-  const getUser = async () => {
-    try {
-      const currUser = await getCurrentUser();
-      setUser(currUser);
-    } catch (e) {
-      console.error(e);
-      setUser(null);
-    }
-  };
-
-  const login = useCallback(async ({ email, password }: ILoginFormData) => {
-    try {
-      setBusy(true);
-      resetError();
-      await signIn({
-        username: email,
-        password,
-        options: {
-          userAttributes: {
-            email,
-          },
-        },
-      });
-      await getUser();
-    } catch (e: any) {
-      setError(e.toString());
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+  const login = useCallback(
+    async ({ email, password }: ILoginFormData) => {
+      try {
+        setBusy(true);
+        resetError();
+        await signIn({
+          username: email,
+          password,
+          options: { userAttributes: { email } },
+        });
+        await getUser();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Unexpected error");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [getUser, resetError, setError]
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -69,12 +68,12 @@ export const useUser = () => {
       resetError();
       await signOut();
       setUser(null);
-    } catch (e: any) {
-      setError(e.toString());
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unexpected error");
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [resetError, setError, setUser]);
 
   const register = async ({
     email,
@@ -88,20 +87,17 @@ export const useUser = () => {
       if (password !== password2) {
         throw new Error("password don't match");
       }
-
       const { nextStep } = await signUp({
         username: email,
-        password: password,
+        password,
         options: {
-          userAttributes: {
-            email,
-          },
+          userAttributes: { email },
           autoSignIn: true,
         },
       });
       rtnValue = nextStep as ISignUpState;
-    } catch (e: any) {
-      setError(e.toString());
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unexpected error");
     } finally {
       setBusy(false);
       return rtnValue;
@@ -120,10 +116,9 @@ export const useUser = () => {
         confirmationCode: verificationCode,
         username: email,
       });
-
       rtnValue = nextStep as ISignUpState;
-    } catch (e: any) {
-      setError(e.toString());
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unexpected error");
     } finally {
       setBusy(false);
       return rtnValue;
@@ -138,13 +133,13 @@ export const useUser = () => {
       const { nextStep } = await autoSignIn();
       rtnValue = nextStep as ISignInState;
       await getUser();
-    } catch (e: any) {
-      setError(e.toString());
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unexpected error");
     } finally {
       setBusy(false);
       return rtnValue;
     }
-  }, []);
+  }, [getUser, resetError, setError]);
 
   return {
     busy,

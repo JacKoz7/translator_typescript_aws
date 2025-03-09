@@ -1,4 +1,4 @@
-export const emptyPromise = new Promise<void>((resolve, reject) => {});
+export const emptyPromise = new Promise<void>(() => {});
 
 export function getDate(time: number) {
   return new Date(time).toLocaleDateString();

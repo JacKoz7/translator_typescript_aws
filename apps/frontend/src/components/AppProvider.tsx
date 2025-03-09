@@ -5,7 +5,6 @@ import React, { useContext, createContext, useState } from "react";
 import { toast } from "sonner";
 
 type IAppContext = {
-  // user has 3 states - logged in, user not logged in, user dont have a account
   user: IAuthUser | null | undefined;
   setUser: (user: IAuthUser | null) => void;
   setError: (msg: string) => void;
@@ -16,11 +15,11 @@ type IAppContext = {
 
 const AppContext = createContext<IAppContext>({
   user: null,
-  setUser: (user) => {},
-  setError: (msg) => {},
+  setUser: () => {}, 
+  setError: () => {}, 
   resetError: () => {},
   selectedTranslation: null,
-  setSelectedTranslation: (item: ITranslateResult) => {},
+  setSelectedTranslation: () => {}, 
 });
 
 function useInitialApp(): IAppContext {
@@ -31,8 +30,8 @@ function useInitialApp(): IAppContext {
   return {
     user,
     setUser,
-    setError: (msg) => {
-      toast.error(msg);
+    setError: (msg: string) => {
+      toast.error(msg); 
     },
     resetError: () => {
       toast.dismiss();

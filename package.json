@@ -13,5 +13,8 @@
     "cdk:destroy": "cd infrastructure && cdk destroy -f --require-approval never",
     "lambda-layer:build-utils": "npm run build --workspace=@sff/utils-lambda-layer",
     "lambda-layer:watch-utils": "npm run watch --workspace=@sff/utils-lambda-layer"
+  },
+  "dependencies": {
+    "react-hook-form": "^7.54.2"
   }
 }
