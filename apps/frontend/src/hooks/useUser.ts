@@ -1,5 +1,4 @@
 "use client";
-
 import { useApp } from "@/components";
 import {
   ILoginFormData,
@@ -18,6 +17,11 @@ import {
 } from "aws-amplify/auth";
 import { useCallback, useEffect, useState } from "react";
 
+// Własny typ błędu zamiast any
+interface ErrorWithMessage {
+  toString(): string;
+}
+
 export const useUser = () => {
   const [busy, setBusy] = useState<boolean>(false);
   const { user, setUser, setError, resetError } = useApp();
@@ -26,8 +30,8 @@ export const useUser = () => {
     try {
       const currUser = await getCurrentUser();
       setUser(currUser);
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      console.log(e);
       setUser(null);
     }
   }, [setUser]);
@@ -38,9 +42,8 @@ export const useUser = () => {
       await getUser();
       setBusy(false);
     }
-
     fetchUser();
-  }, [getUser]);
+  }, [getUser]); // Dodano getUser jako zależność
 
   const login = useCallback(
     async ({ email, password }: ILoginFormData) => {
@@ -50,11 +53,16 @@ export const useUser = () => {
         await signIn({
           username: email,
           password,
-          options: { userAttributes: { email } },
+          options: {
+            userAttributes: {
+              email,
+            },
+          },
         });
         await getUser();
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Unexpected error");
+      } catch (error: unknown) {
+        const err = error as ErrorWithMessage;
+        setError(err.toString());
       } finally {
         setBusy(false);
       }
@@ -68,8 +76,9 @@ export const useUser = () => {
       resetError();
       await signOut();
       setUser(null);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unexpected error");
+    } catch (error: unknown) {
+      const err = error as ErrorWithMessage;
+      setError(err.toString());
     } finally {
       setBusy(false);
     }
@@ -89,15 +98,18 @@ export const useUser = () => {
       }
       const { nextStep } = await signUp({
         username: email,
-        password,
+        password: password,
         options: {
-          userAttributes: { email },
+          userAttributes: {
+            email,
+          },
           autoSignIn: true,
         },
       });
       rtnValue = nextStep as ISignUpState;
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unexpected error");
+    } catch (error: unknown) {
+      const err = error as ErrorWithMessage;
+      setError(err.toString());
     } finally {
       setBusy(false);
       return rtnValue;
@@ -117,8 +129,9 @@ export const useUser = () => {
         username: email,
       });
       rtnValue = nextStep as ISignUpState;
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unexpected error");
+    } catch (error: unknown) {
+      const err = error as ErrorWithMessage;
+      setError(err.toString());
     } finally {
       setBusy(false);
       return rtnValue;
@@ -133,8 +146,9 @@ export const useUser = () => {
       const { nextStep } = await autoSignIn();
       rtnValue = nextStep as ISignInState;
       await getUser();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unexpected error");
+    } catch (error: unknown) {
+      const err = error as ErrorWithMessage;
+      setError(err.toString());
     } finally {
       setBusy(false);
       return rtnValue;
