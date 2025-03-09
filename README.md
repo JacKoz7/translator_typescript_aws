@@ -19,7 +19,11 @@ Push infrastructure changes:
 ```
 npm run cdk:deploy
 ```
-build frontend for public use:
+build frontend for public use (creating a production build):
 ```
 npm run frontend:build
+```
+running app on localhost
+```
+npm run frontend:dev
 ```

@@ -4,10 +4,19 @@ import { ITranslateRequest } from "@sff/shared-types";
 import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Label } from "./ui/label";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useApp } from "./AppProvider";
+import { Combobox, IComboBoxOption } from "./ui/combobox";
+import { ILanguage, LANGUAGE_LIST } from "@/lib";
+
+const languageOptions: Array<IComboBoxOption<ILanguage>> = LANGUAGE_LIST.map(
+  (item) => ({
+    value: item.name,
+    label: item.name,
+    data: item,
+  })
+);
 
 export const TranslateRequestForm = () => {
   const { translate, isTranslating } = useTranslate();
@@ -50,20 +59,31 @@ export const TranslateRequestForm = () => {
 
       <div>
         <Label htmlFor="sourceLang">Input Language:</Label>
-        <Input
-          id="sourceLang"
-          type="text"
-          {...register("sourceLang", { required: true })}
+        <Combobox
+          placeholder="Language"
+          options={languageOptions}
+          selected={languageOptions.find(
+            (i) => i.data.code === selectedTranslation?.sourceLang
+          )}
+          onSelect={(a) => {
+            console.log(a);
+            setValue("sourceLang", a.data.code);
+          }}
         />
         {errors.sourceLang && <span>field is required</span>}
       </div>
 
       <div>
         <Label htmlFor="targetLang">Output Language:</Label>
-        <Input
-          id="targetLang"
-          type="text"
-          {...register("targetLang", { required: true })}
+        <Combobox
+          placeholder="Language"
+          options={languageOptions}
+          selected={languageOptions.find(
+            (i) => i.data.code === selectedTranslation?.targetLang
+          )}
+          onSelect={(a) => {
+            setValue("targetLang", a.data.code);
+          }}
         />
         {errors.targetLang && <span>field is required</span>}
       </div>

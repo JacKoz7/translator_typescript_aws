@@ -36,7 +36,7 @@ export default function Register() {
     if ((step as ISignInState).signInStep === "DONE") {
       router.push("/");
     }
-  }, [step]);
+  }, [step, router]);
 
   if (step) {
     if ((step as ISignUpState).signUpStep === "CONFIRM_SIGN_UP") {
