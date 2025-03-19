@@ -54,7 +54,7 @@ export function Combobox<T>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[200px] justify-between bg-custom-cream"
         >
           {value
             ? options.find((framework) => framework.value === value)?.label
@@ -62,13 +62,13 @@ export function Combobox<T>({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} className="h-9" />
-          <CommandList>
+      <PopoverContent className="w-[200px] p-0 ">
+        <Command className="bg-custom-cream">
+          <CommandInput placeholder={placeholder} className="h-9 bg-custom-cream" />
+          <CommandList className="bg-custom-cream">
             <CommandEmpty>No framework found.</CommandEmpty>
             {options.map((framework) => (
-              <CommandItem
+              <CommandItem 
                 key={framework.value}
                 value={framework.value}
                 onSelect={(currentValue) => {
@@ -85,7 +85,7 @@ export function Combobox<T>({
                 {framework.label}
                 <Check
                   className={cn(
-                    "ml-auto",
+                    "ml-auto bg-green-400",
                     value === framework.value ? "opacity-100" : "opacity-0"
                   )}
                 />

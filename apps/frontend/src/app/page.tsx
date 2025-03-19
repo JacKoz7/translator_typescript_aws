@@ -37,7 +37,7 @@ export default function Home() {
     <main className="flex flex-col h-screen">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel collapsible ref={leftPanelRef}>
-          <div className="bg-gray-900 w-full h-full flex flex-col space-y-2 p-2">
+          <div className="bg-custom-orange w-full h-full flex flex-col space-y-2 p-2">
             {translations.map((item) => {
               return (
                 <TranslateCard

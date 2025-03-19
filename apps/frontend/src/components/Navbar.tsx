@@ -21,8 +21,8 @@ export function UserNav() {
   const router = useRouter();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <DropdownMenu >
+      <DropdownMenuTrigger asChild >
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             {!user && <AvatarImage src="/avatar.png" alt="avatar" />}
@@ -36,7 +36,7 @@ export function UserNav() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-56 bg-custom-teal" align="end" forceMount>
         {user && (
           <DropdownMenuGroup>
             <DropdownMenuLabel className="font-normal">
@@ -89,16 +89,17 @@ export function UserNav() {
 export const Navbar = () => {
   const router = useRouter();
   return (
-    <div className="border-b bg-white">
+    <div className="border-b bg-custom-teal">
       <div className="flex h-16 items-center px-4">
         <h1
-          className="font-semibold text-lg hover:underline"
+          className="font-semibold text-lg hover:underline text-custom-blue hover:text-custom-cream transition-all duration-300 ease-in-out hover:scale-105 drop-shadow-lg"
           onClick={() => {
             router.push("/");
           }}
         >
           EasySpeak
         </h1>
+
         <div className="ml-auto flex items-center space-x-4">
           <UserNav />
         </div>
