@@ -14,7 +14,6 @@ export type ITranslatePrimaryKey = {
   requestId: string;
 };
 
-//combination of these ones above
 export type ITranslateResult = ITranslateRequest &
   ITranslateResponse &
   ITranslatePrimaryKey;

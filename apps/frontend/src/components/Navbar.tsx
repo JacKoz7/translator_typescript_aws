@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,22 +21,24 @@ export function UserNav() {
   const router = useRouter();
 
   return (
-    <DropdownMenu >
-      <DropdownMenuTrigger asChild >
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {!user && <AvatarImage src="/avatar.png" alt="avatar" />}
+            {!user && <AvatarImage src="/avatar.jpg" alt="avatar" />}
             {user && (
-              <p className="font-semibold bg-blue-500 flex h-8 w-8 items-center justify-center">
+              <p className="font-semibold bg-custom-teal flex h-8 w-8 items-center justify-center text-midnight">
                 {user.signInDetails?.loginId?.slice(0, 2).toUpperCase()}
               </p>
             )}
-
-            <AvatarFallback>SC</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-custom-teal" align="end" forceMount>
+      <DropdownMenuContent
+        className="w-56 bg-custom-teal"
+        align="end"
+        forceMount
+      >
         {user && (
           <DropdownMenuGroup>
             <DropdownMenuLabel className="font-normal">
@@ -89,17 +91,18 @@ export function UserNav() {
 export const Navbar = () => {
   const router = useRouter();
   return (
-    <div className="border-b bg-custom-teal">
-      <div className="flex h-16 items-center px-4">
-        <h1
-          className="font-semibold text-lg hover:underline text-custom-blue hover:text-custom-cream transition-all duration-300 ease-in-out hover:scale-105 drop-shadow-lg"
-          onClick={() => {
-            router.push("/");
-          }}
-        >
-          EasySpeak
-        </h1>
-
+    <div className="border-b bg-gradient-to-r from-midnight via-custom-teal to-midnight">
+      <div className="flex h-16 items-center justify-between px-4">
+        <div className="flex-grow flex justify-center">
+          <h1
+            className="font-semibold-serif text-2xl hover:underline text-midnight hover:text-custom-cream transition-all duration-300 ease-in-out hover:scale-105 drop-shadow-lg"
+            onClick={() => {
+              router.push("/");
+            }}
+          >
+            EasySpeak
+          </h1>
+        </div>
         <div className="ml-auto flex items-center space-x-4">
           <UserNav />
         </div>

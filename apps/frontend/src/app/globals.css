@@ -2,15 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-body {
-  background: violet;
-}
-
-
-
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;

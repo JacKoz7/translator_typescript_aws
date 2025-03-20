@@ -19,12 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-screen w-full">
-      <body className={cn(inter.className, "bg-custom-brown h-full")}>
+      <body
+        className={cn(
+          inter.className,
+          "bg-gradient-to-l from-custom-orange via-custom-brown to-custom-brown h-full"
+        )}
+      >
         <ConfigureAmplify />
         <Provider>
-          <Navbar/>
+          <Navbar />
           {children}
-          <Toaster/>
+          <Toaster />
         </Provider>
       </body>
     </html>

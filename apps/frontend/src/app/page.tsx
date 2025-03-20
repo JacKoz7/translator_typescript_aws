@@ -10,34 +10,32 @@ import { useEffect, useRef } from "react";
 import { ImperativePanelHandle } from "react-resizable-panels";
 import { Loading } from "@/components/ui/Loading";
 
-
 export default function Home() {
   // located in different file for cleaner coding
-  const { isLoading, translations } =
-    useTranslate();
+  const { isLoading, translations } = useTranslate();
   const { user, selectedTranslation, setSelectedTranslation } = useApp();
-  const leftPanelRef = useRef<ImperativePanelHandle>(null) /// czy dobrze???
+  const leftPanelRef = useRef<ImperativePanelHandle>(null); /// czy dobrze???
 
-  useEffect(()=>{
-    if (!leftPanelRef.current){
+  useEffect(() => {
+    if (!leftPanelRef.current) {
       return;
     }
-    if(user){
-      leftPanelRef.current?.expand()
+    if (user) {
+      leftPanelRef.current?.expand();
     } else {
-      leftPanelRef.current?.collapse()
+      leftPanelRef.current?.collapse();
     }
-  },[user])
+  }, [user]);
 
   if (isLoading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   return (
     <main className="flex flex-col h-screen">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel collapsible ref={leftPanelRef}>
-          <div className="bg-custom-orange w-full h-full flex flex-col space-y-2 p-2">
+          <div className="bg-gradient-to-r from-custom-orange to-custom-brown w-full h-full flex flex-col space-y-2 p-2">
             {translations.map((item) => {
               return (
                 <TranslateCard

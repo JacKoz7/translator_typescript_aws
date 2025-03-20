@@ -48,7 +48,7 @@ export const TranslateRequestForm = () => {
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <Label htmlFor="sourceText">Input text:</Label>
+        <Label className="text-custom-cream font-bold" htmlFor="sourceText">Input text:</Label>
         <Textarea
           id="sourceText"
           {...register("sourceText", { required: true })}

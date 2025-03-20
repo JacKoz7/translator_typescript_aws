@@ -42,3 +42,5 @@ next-env.d.ts
 
 # dist ignore
 dist/
+
+public/screenshot.png
