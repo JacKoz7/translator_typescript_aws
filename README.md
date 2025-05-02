@@ -62,7 +62,7 @@ The project uses AWS Translate to process text translations. You can use the fro
 
 Visit [jacekkozlowski.com](https://jacekkozlowski.com) to see the application in action.
 
-##Screenshots:
+## Screenshots:
 
 <table>
 
