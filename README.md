@@ -62,4 +62,12 @@ The project uses AWS Translate to process text translations. You can use the fro
 
 Visit [jacekkozlowski.com](https://jacekkozlowski.com) to see the application in action.
 
-![EasySpeak screenshot](apps/frontend/public/screenshot.png)
+##Screenshots:
+
+<table>
+
+  <tr>
+    <td><img width="1470" alt="EasySpeak main page" src="https://github.com/user-attachments/assets/1c685e17-dc4f-4eb1-a48f-8019d594dbc0" /></td>
+    <td><img width="1470" alt="Translation Page" src="https://github.com/user-attachments/assets/864d4e0a-75c3-4e19-ac29-49a0294f42ce" /></td>
+  </tr>
+</table>
